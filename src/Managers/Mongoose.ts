@@ -59,7 +59,7 @@ export class Mongo implements BaseDB {
 
     async get(key: string) {
         const cachev = this.cache?.get(key);
-        const mod = cachev || (await this.model.findOne({ key })).key || undefined;
+        const mod = cachev || (await this.model.findOne({ key }))?.key || undefined;
 
         return mod ? this.deserializer(mod) : undefined;
     }
