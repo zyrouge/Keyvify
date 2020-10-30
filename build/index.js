@@ -21,6 +21,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = exports.createDatabase = exports.SupportedDialects = void 0;
 const sequelize_1 = require("sequelize");
+const mongoose_1 = require("mongoose");
 const lodash_1 = require("lodash");
 const SQLManager = __importStar(require("./Managers/Sequelize"));
 const Error_1 = require("./Utils/Error");
@@ -37,12 +38,20 @@ function createDatabase(name, config) {
         throw new Error_1.Err("Invalid password", "INVALID_PASSWORD");
     if (config.database && !lodash_1.isString(config.database))
         throw new Error_1.Err("Invalid database", "INVALID_DATABASE");
+    if (config.host && !lodash_1.isString(config.host))
+        throw new Error_1.Err("Invalid host", "INVALID_HOST");
+    if (config.uri && !lodash_1.isString(config.uri))
+        throw new Error_1.Err("Invalid URI", "INVALID_URI");
     if (!config.dialect || !lodash_1.isString(config.dialect) || !exports.SupportedDialects.includes(config.dialect))
         throw new Error_1.Err("Invalid dialect", "INVALID_DIALECT");
     if (config.storage && !lodash_1.isString(config.storage))
         throw new Error_1.Err("Invalid storage", "INVALID_STORAGE");
     if (config.sequelize && !(config.sequelize instanceof sequelize_1.Sequelize))
         throw new Error_1.Err("Invalid sequelize", "INVALID_SEQUELIZE_INSTANCE");
+    if (config.mongoose && !(config.mongoose instanceof mongoose_1.Mongoose))
+        throw new Error_1.Err("Invalid mongoose", "INVALID_MONGOOSE_INSTANCE");
+    if (config.disableCache !== undefined && !lodash_1.isBoolean(config.disableCache))
+        throw new Error_1.Err("Invalid cache option", "INVALID_CACHE_OPTION");
     if (config.serializer && !lodash_1.isFunction(config.serializer))
         throw new Error_1.Err("Invalid serializer", "INVALID_SERIALIZER");
     if (config.deserializer && !lodash_1.isFunction(config.deserializer))
