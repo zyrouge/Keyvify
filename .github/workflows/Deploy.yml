@@ -28,9 +28,9 @@ jobs:
         working-directory: ./docs/src/.vuepress/dist
         run: |
             git init
-            git config user.name ${{ secrets.GH_USER }}
-            git config user.email "${{ secrets.GH_MAIL }}"
-            git remote add origin https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git remote add origin https://github.actor:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
             git fetch
             git checkout gh-pages
             git add .
