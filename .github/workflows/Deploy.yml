@@ -1,0 +1,14 @@
+name: Shell
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Deploying
+      run: chmod +x ./docs/deploy.sh
