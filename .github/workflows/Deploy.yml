@@ -31,12 +31,12 @@ jobs:
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
             git remote add origin https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
+            git fetch
             git checkout gh-pages
             git add .
 
       - name: Commit and Push files
         working-directory: ./docs/src/.vuepress/dist
         run: |
-            git remote -v
             git commit -m "Added build files"
             git push origin gh-pages -f
