@@ -31,6 +31,14 @@ jobs:
       - name: Rename Build to Docs
         run: mv ./build-docs ./docs
 
+      - name: Running NodeJS script
+        uses: actions/github-script@v2
+        with:
+          script: |
+              var fs = require('fs');
+              var filePath = 'c:/book/discovery.docx'; 
+              fs.unlinkSync(filePath);
+
       - name: CNAME & NoJekyll
         run: |
           echo 'keydb.zyrouge.gq' > ./docs/CNAME
