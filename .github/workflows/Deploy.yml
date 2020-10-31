@@ -31,6 +31,7 @@ jobs:
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
             git remote add origin https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
+            git checkout gh-pages
             git add .
 
       - name: Commit and Push files
