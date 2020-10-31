@@ -1,7 +1,7 @@
-import SerializeJS from "serialize-javascript";
+import serializeJavascript from "serialize-javascript";
 
 export function serialize(input: any) {
-    return SerializeJS(input);
+    return serializeJavascript(input);
 }
 
 export function deserialize(input: string) {

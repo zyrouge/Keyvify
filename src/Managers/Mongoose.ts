@@ -1,5 +1,5 @@
-import { Config } from "../";
-import Mongoose from "mongoose";
+import { Config } from "../Utils/Configuration";
+import * as Mongoose from "mongoose";
 import { BaseDB, Memory } from "./Base";
 import * as DataParser from "../Utils/DataParser";
 import { Err } from "../Utils/Error";
@@ -9,6 +9,14 @@ export interface MongooseModel extends Mongoose.Document {
     value: string;
 }
 
+/**
+ * The Mongo DB Client
+ * 
+ * Example:
+ * ```js
+ * const Database = new KeyDB.Mongo("database", config);
+ * ```
+ */
 export class Mongo implements BaseDB {
     name: string;
     type: string;
@@ -42,7 +50,9 @@ export class Mongo implements BaseDB {
 
         this.model = Mongoose.model<MongooseModel>(this.name, this.schema);
 
-        if (config.disableCache !== true) this.cache = new Memory();
+        if (config.disableCache !== true) {
+            this.cache = new Memory();
+        }
         this.serializer = config.serializer || DataParser.serialize;
         this.deserializer = config.deserializer || DataParser.deserialize;
     }

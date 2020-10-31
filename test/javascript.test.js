@@ -1,6 +1,8 @@
-const keydb = require("../build");
+const KeyDB = require("../build");
 
-keydb.createDatabase({}, {
+console.log(KeyDB);
+
+KeyDB({}, {
     lool: "xd",
-    dialect: {}
+    dialect: "sqlite"
 });

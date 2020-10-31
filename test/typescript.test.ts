@@ -1,5 +1,5 @@
-import keydb from "../build";
+import KeyDB from "../build";
 
-keydb("kek", {
+KeyDB("kek", {
     dialect: "sqlite"
 });

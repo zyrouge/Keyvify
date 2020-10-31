@@ -1,6 +1,9 @@
-import { Config } from "../";
-import { Sequelize, Model, ModelCtor, DataTypes, Optional } from "sequelize";
+import { Config, checkConfig, SequelizeDialects } from "../Utils/Configuration";
+import { Err } from "../Utils/Error";
+import { isString } from "lodash";
+import { Sequelize, Model, ModelCtor, DataTypes, Optional, Dialect } from "sequelize";
 import { BaseDB, Memory } from "./Base";
+import * as path from "path";
 import * as DataParser from "../Utils/DataParser";
 
 export interface SQLModelAttr {
@@ -14,6 +17,14 @@ export interface SQLModel
     extends Model<SQLModelAttr, SQLCreationAttributes>,
     SQLModelAttr { }
 
+/**
+* The SQL DB Client
+*
+* Example:
+* ```js
+* const Database = new KeyDB.SQL("database", config);
+* ```
+*/
 export class SQL implements BaseDB {
     name: string;
     type: string;
@@ -25,6 +36,17 @@ export class SQL implements BaseDB {
     deserializer: (input: string) => any;
 
     constructor(name: string, config: Config) {
+        if (!isString(name)) throw new Err("Invalid Database name", "INVALID_DB_NAME");
+        if (!config) throw new Err("No configuration was passed", "NO_CONFIG");
+        checkConfig(config);
+
+        if (!isSequelizeDialect(config.dialect)) throw new Err("Invalid SQL Dialect", "INVALID_SQL_DIALECT");
+        if (config.dialect === "sqlite" && !config.storage) throw new Err("No storage path was passed", "NO_SQLITE_STORAGE");
+
+        const storagePath = config.storage && !path.isAbsolute(config.storage)
+            ? path.join(process.cwd(), config.storage)
+            : undefined;
+
         this.name = name;
         this.type = config.dialect;
         this.sequelize = config.sequelize || new Sequelize({
@@ -32,8 +54,11 @@ export class SQL implements BaseDB {
             username: config.username,
             password: config.password,
             host: config.host,
+            port: config.port,
             dialect: config.dialect,
-            storage: config.storage
+            storage: storagePath
+                ? `${storagePath}${storagePath.endsWith(".sqlite") ? "" : ".sqlite"}`
+                : undefined
         });
 
         this.model = this.sequelize.define<SQLModel>(this.name, {
@@ -47,7 +72,9 @@ export class SQL implements BaseDB {
             }
         });
 
-        if (config.disableCache !== true) this.cache = new Memory();
+        if (config.disableCache !== true) {
+            this.cache = new Memory();
+        }
         this.serializer = config.serializer || DataParser.serialize;
         this.deserializer = config.deserializer || DataParser.deserialize;
     }
@@ -106,4 +133,8 @@ export class SQL implements BaseDB {
     entries() {
         return this.cache?.all() || [];
     }
+}
+
+function isSequelizeDialect(dialect: string): dialect is Dialect {
+    return SequelizeDialects.includes(dialect);
 }
