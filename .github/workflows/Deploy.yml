@@ -24,7 +24,7 @@ jobs:
 
       - run: ls
 
-      - name: Commit files
+      - name: Init and Add files
         working-directory: ./docs/src/.vuepress/dist
         run: |
             git init
@@ -32,5 +32,11 @@ jobs:
             git config --local user.name "GitHub Action"
             git remote add upstream https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
             git add .
+            git commit -m "Added build files"
+            git push -f upstream gh-pages
+
+      - name: Commit and Push files
+        working-directory: ./docs/src/.vuepress/dist
+        run: |
             git commit -m "Added build files"
             git push -f upstream gh-pages
