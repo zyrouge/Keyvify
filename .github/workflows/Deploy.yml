@@ -22,6 +22,8 @@ jobs:
           yarn install -D
           yarn build
 
+      - run: ls
+
       - name: Commit files
         run: |
             git config --local user.email "action@github.com"
