@@ -38,7 +38,9 @@ jobs:
               const fs = require("fs");
               const all = fs.readdirSync(".");
               all.forEach(f => {
-                  if (f !== "docs") fs.unlinkSync(`./${f}`);
+                  try {
+                    if (f !== "docs") fs.unlinkSync(`./${f}`);
+                  } catch(e) {}
               });
 
       - name: CNAME & NoJekyll
