@@ -32,5 +32,5 @@ jobs:
             git config --local user.name "GitHub Action"
             git add -f .
             git commit -m "Added build files"
-            git remote add upstream "https://${{ secrets.GH_TOKEN }}@github.com/${{ env.GITHUB_REPOSITORY }}.git"
+            git remote add upstream "https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git"
             git push -f upstream gh-pages
