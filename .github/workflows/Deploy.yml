@@ -23,7 +23,7 @@ jobs:
           yarn build
 
       - name: Copy Build files
-        run: cp ./docs/src/.vuepress/dist ./build-docs
+        run: cp -r ./docs/src/.vuepress/dist ./build-docs
 
       - name: CNAME
         run: echo 'keydb.zyrouge.gq' > ./build-docs/CNAME
