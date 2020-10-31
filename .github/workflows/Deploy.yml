@@ -30,9 +30,8 @@ jobs:
             git init
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
+            git checkout gh-pages
             git add -f .
             git commit -m "Added build files"
             git remote add upstream "https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git"
-            git remote -v
-            git branch
             git push -f upstream gh-pages
