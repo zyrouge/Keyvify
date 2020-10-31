@@ -1,4 +1,6 @@
-![KeyDB](/docs/src/.vuepress/public/assets/logo.png)
+<p align="center">
+  <img src="./docs/src/.vuepress/public/assets/logo.png" width="230px">
+</p>
 
 <h1 align="center">KeyDB</h1>
 <p align="center">A simple promise-base key-value database ORM</p>
