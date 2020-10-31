@@ -39,7 +39,7 @@ jobs:
               const path = require("path");
               const all = fs.readdirSync(".");
               all.forEach(f => {
-                  if (f !== "docs") {
+                  if (!["docs", ".git", "LICENSE", ".gitignore"].includes(f)) {
                     try { fs.unlinkSync(`./${f}`); } catch(e) {}
                     try { fs.rmdirSync(`./${f}`, { recursive: true }); } catch(e) {}
                   }
