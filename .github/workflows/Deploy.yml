@@ -16,27 +16,17 @@ jobs:
         with:
             node-version: "12.18.3"
 
-      - name: Goto Docs
-        run: cd ./docs
-
-      - run: ls
-
-      - name: Install packages
-        run: yarn install -D
-
-      - name: Build
-        run: yarn build
-      
-      - run: ls
-
-      - name: Goto Dist
-        run: cd ./src/.vuepress/dist
+      - name: Build Docs
+        working-directory: ./docs
+        run: |
+          yarn install -D
+          yarn build
 
       - name: Commit files
         run: |
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
-            git commit . -m "Added build files"
+            git commit ./docs/src/.vuepress/dist -m "Added build files"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
