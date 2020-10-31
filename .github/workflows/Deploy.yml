@@ -25,8 +25,16 @@ jobs:
       - name: Copy Build files
         run: cp -r ./docs/src/.vuepress/dist ./build-docs
 
-      - name: CNAME
-        run: echo 'keydb.zyrouge.gq' > ./build-docs/CNAME
+      - name: Delete existing Docs
+        run: rm -rf ./docs
+
+      - name: Rename Build to Docs
+        run: mv ./build-docs ./docs
+
+      - name: CNAME & NoJekyll
+        run: |
+          echo 'keydb.zyrouge.gq' > ./build-docs/CNAME
+          touch .nojekyll
 
       - name: Commit files
         run: |
