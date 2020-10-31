@@ -22,21 +22,19 @@ jobs:
           yarn install -D
           yarn build
 
-      - run: ls
+      - name: Copy Build files
+        run: cp ./docs/src/.vuepress/dist ./docs
 
-      - name: Init and Add files
-        working-directory: ./docs/src/.vuepress/dist
+      - name: Commit files
         run: |
-            git init
-            git config --local user.email ${{ secrets.GH_USER }}
-            git config --local user.name "${{ secrets.GH_MAIL }}"
-            git remote add origin https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
-            git fetch
-            git checkout gh-pages
-            git add .
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Add changes"
 
-      - name: Commit and Push files
-        working-directory: ./docs/src/.vuepress/dist
-        run: |
-            git commit -m "Added build files"
-            git push origin gh-pages -f
+      - name: Push changes
+          uses: ad-m/github-push-action@master
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: build
+            force: true
