@@ -27,8 +27,10 @@ jobs:
       - name: Commit files
         working-directory: ./docs/src/.vuepress/dist
         run: |
-            git config --local user.email "action@github.com"
-            git config --local user.name "GitHub Action"
+            git init
             git add -f .
             git commit -m "Added build files"
-            git remote -v
+            git config user.name ${{ secrets.GH_USER }}
+            git config user.email "${{ secrets.GH_MAIL }}"
+            git remote add upstream "https://${{ secrets.GH_TOKEN }}@github.com/zyrouge/key.db.git"
+            git push -f upstream gh-pages
