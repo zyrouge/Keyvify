@@ -17,16 +17,20 @@ jobs:
             node-version: "12.18.3"
 
       - name: Goto Docs
-        run: cd docs
+        run: cd ./docs
+
+      - run: ls
 
       - name: Install packages
         run: yarn install -D
 
       - name: Build
         run: yarn build
+      
+      - run: ls
 
       - name: Goto Dist
-        run: cd src/.vuepress/dist
+        run: cd ./src/.vuepress/dist
 
       - name: Commit files
         run: |

@@ -22,7 +22,7 @@
   "scripts": {
     "build": "tsc",
     "test:js": "node test/javascript.test.js",
-    "docs": "typedoc"
+    "docs:build": "typedoc && cd ./docs && yarn build"
   },
   "repository": {
     "type": "git",
