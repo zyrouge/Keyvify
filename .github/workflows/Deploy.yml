@@ -27,9 +27,9 @@ jobs:
       - name: Commit files
         working-directory: ./docs/src/.vuepress/dist
         run: |
+            git init
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
-            git init
             git add -f .
             git commit -m "Added build files"
             git remote add upstream "https://${{ secrets.GH_TOKEN }}@github.com/${{ env.GITHUB_REPOSITORY }}.git"
