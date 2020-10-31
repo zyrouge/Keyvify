@@ -30,11 +30,12 @@ jobs:
             git init
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
-            git remote add upstream https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
+            git remote add origin https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git
             git add .
 
       - name: Commit and Push files
         working-directory: ./docs/src/.vuepress/dist
         run: |
+            git remote -v
             git commit -m "Added build files"
-            git push -f upstream gh-pages
+            git push origin gh-pages -f
