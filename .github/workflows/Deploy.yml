@@ -34,7 +34,7 @@ jobs:
       - name: CNAME & NoJekyll
         run: |
           echo 'keydb.zyrouge.gq' > ./docs/CNAME
-          touch .nojekyll
+          touch ./docs/.nojekyll
 
       - name: Commit files
         run: |
