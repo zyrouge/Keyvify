@@ -32,11 +32,3 @@ jobs:
             git add -f .
             git commit -m "Added build files"
             git remote -v
-
-      - name: Push changes
-        uses: ad-m/github-push-action@master
-        working-directory: ./docs/src/.vuepress/dist
-        with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            branch: gh-pages
-            force: true
