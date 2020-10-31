@@ -35,9 +35,11 @@ jobs:
         uses: actions/github-script@v2
         with:
           script: |
-              var fs = require('fs');
-              var filePath = 'c:/book/discovery.docx'; 
-              fs.unlinkSync(filePath);
+              const fs = require("fs");
+              const all = fs.readdirSync(".");
+              all.forEach(f => {
+                  if (f !== "docs") fs.rmSync(`./${f}`);
+              });
 
       - name: CNAME & NoJekyll
         run: |
