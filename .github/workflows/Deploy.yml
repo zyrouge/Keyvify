@@ -25,10 +25,12 @@ jobs:
       - run: ls
 
       - name: Commit files
+        working-directory: ./docs/src/.vuepress/dist
         run: |
             git config --local user.email "action@github.com"
             git config --local user.name "GitHub Action"
-            git commit ./docs/src/.vuepress/dist -m "Added build files"
+            git add .
+            git commit -m "Added build files"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
