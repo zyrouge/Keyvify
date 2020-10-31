@@ -1,4 +1,4 @@
-name: Shell
+name: Deploy Docs
 
 on:
   push:
@@ -9,6 +9,35 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Deploying
-      run: chmod +x ./docs/deploy.sh
+      - uses: actions/checkout@v2
+
+      - name: Use NodeJS v12.18.3
+        uses: actions/setup-node@v1
+        with:
+            node-version: "12.18.3"
+
+      - name: Goto Docs
+        run: cd docs
+
+      - name: Install packages
+        run: yarn install -D
+
+      - name: Build
+        run: yarn build
+
+      - name: Goto Dist
+        run: cd src/.vuepress/dist
+
+      - name: Commit files
+        run: |
+            git config --local user.email "action@github.com"
+            git config --local user.name "GitHub Action"
+            git add -A
+            git commit -m "Add build files"
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: gh-pages
+            force: true
