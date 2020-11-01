@@ -26,7 +26,7 @@ $ npm i tedious # Microsoft SQL Server
 
 ## Resources
 
-* Website
-* Documentation
+* [Website](https://keydb.zyrouge.gq)
+* [Documentation](https://keydb.zyrouge.gq/docs)
 * Changelogs
 * [NPM](https://npmjs.com/key.db)
