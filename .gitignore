@@ -88,8 +88,8 @@ dist
 # public
 
 # vuepress build output
-.vuepress/dist
-.vuepress/public/docs
+docs/src/.vuepress/dist
+docs/src/.vuepress/public/docs
 
 # Serverless directories
 .serverless/
