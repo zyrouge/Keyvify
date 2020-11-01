@@ -106,15 +106,20 @@ export class SQL extends EventEmitter implements BaseDB {
 
     async set(key: string, value: any) {
         const obj = { key, value: this.serializer(value) };
+        let oldVal: any;
 
         const [mod, isCreated] = await this.model.findOrCreate({ where: { key } });
-        await mod.update("value", obj.value);
-        this.cache?.set(obj.key, obj.value);
+        if (!isCreated) {
+            const __v = mod.getDataValue("value");
+            oldVal = __v ? this.deserializer(__v) : undefined;
+            await mod.update("value", obj.value);
+        }
 
+        this.cache?.set(obj.key, obj.value);
         const val = this.deserializer(obj.value);
-        isCreated
-            ? this.emit("valueSet", { key, value: val })
-            : this.emit("valueUpdate", { key, value: val });
+        oldVal
+            ? this.emit("valueUpdate", { key, value: oldVal }, { key, value: val })
+            : this.emit("valueSet", { key, value: val });
         return val;
     }
 

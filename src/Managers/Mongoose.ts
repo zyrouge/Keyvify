@@ -84,13 +84,13 @@ export class Mongo extends EventEmitter implements BaseDB {
 
     async set(key: string, value: any) {
         const obj = { key, value: this.serializer(value) };
-        let isUpdated = false;
+        let oldVal: any;
 
         let alr = await this.model.findOne({ key });
         if (!alr) {
             alr = new this.model(obj);
         } else {
-            isUpdated = true;
+            oldVal = alr.value ? this.deserializer(alr.value) : undefined;
             alr.update({ value: obj.value });
         }
 
@@ -98,8 +98,8 @@ export class Mongo extends EventEmitter implements BaseDB {
         this.cache?.set(obj.key, obj.value);
 
         const val = this.deserializer(obj.value);
-        isUpdated
-            ? this.emit("valueUpdate", { key, value: val })
+        oldVal
+            ? this.emit("valueUpdate", { key, value: oldVal }, { key, value: val })
             : this.emit("valueSet", { key, value: val });
         return val;
     }
