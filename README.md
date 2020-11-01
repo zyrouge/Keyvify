@@ -1,5 +1,6 @@
 <p align="center">
-  <img src="./docs/src/.vuepress/public/assets/logo.png" width="230px">
+  <img
+    src="./docs/src/.vuepress/public/assets/logo.png" onerror="this.src='/assets/logo.png'" width="230px">
 </p>
 
 <h1 align="center">KeyDB</h1>
