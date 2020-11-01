@@ -16,7 +16,10 @@ jobs:
         with:
             node-version: "12.18.3"
 
-      - name: Build Docs
+      - name: Generate Docs
+        run: npm run docs
+
+      - name: Build Docs (Vuepress)
         working-directory: ./docs
         run: |
           yarn install -D

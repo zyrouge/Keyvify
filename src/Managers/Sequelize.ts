@@ -67,7 +67,7 @@ export class SQL implements BaseDB {
                 type: DataTypes.STRING
             },
             value: {
-                type: DataTypes.STRING,
+                type: DataTypes.TEXT,
                 allowNull: false
             }
         });

@@ -40,8 +40,8 @@ module.exports = {
         link: '/guide/',
       },
       {
-        text: 'Config',
-        link: '/config/'
+        text: 'Documentation',
+        link: 'https://keydb.zyrouge.gq/docs'
       },
       {
         text: 'NPM',
@@ -52,11 +52,7 @@ module.exports = {
       '/guide/': [
         {
           title: 'Guide',
-          collapsable: false,
-          children: [
-            '',
-            'using-vue',
-          ]
+          collapsable: false
         }
       ],
     }
