@@ -24,7 +24,7 @@ jobs:
       - name: Build Docs (Vuepress)
         working-directory: ./docs
         run: |
-          yarn install -dev
+          yarn install --dev
           yarn build
 
       - name: Copy Build files
