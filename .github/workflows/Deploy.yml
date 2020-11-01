@@ -17,12 +17,14 @@ jobs:
             node-version: "12.18.3"
 
       - name: Generate Docs
-        run: npm run docs
+        run: |
+          npm install -D
+          npm run docs
 
       - name: Build Docs (Vuepress)
         working-directory: ./docs
         run: |
-          yarn install -D
+          yarn install -dev
           yarn build
 
       - name: Copy Build files
