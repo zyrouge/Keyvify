@@ -15,6 +15,7 @@
     "@types/serialize-javascript": "^4.0.0",
     "@types/validator": "^13.1.0",
     "mongoose": ">=5.x",
+    "release-it": "^14.2.1",
     "sequelize": "^6.3.5",
     "typedoc": "^0.19.2",
     "typescript": "^4.0.5"

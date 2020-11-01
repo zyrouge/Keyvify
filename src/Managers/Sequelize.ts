@@ -3,7 +3,8 @@ import { Err } from "../Utils/Error";
 import { isString } from "lodash";
 import { Sequelize, Model, ModelCtor, DataTypes, Optional, Dialect } from "sequelize";
 import { BaseDB, Memory } from "./Base";
-import * as path from "path";
+import { EventEmitter } from "events";
+import path from "path";
 import * as DataParser from "../Utils/DataParser";
 
 export interface SQLModelAttr {
@@ -18,14 +19,16 @@ export interface SQLModel
     SQLModelAttr { }
 
 /**
-* The SQL DB Client
-*
-* Example:
-* ```js
-* const Database = new KeyDB.SQL("database", config);
-* ```
-*/
-export class SQL implements BaseDB {
+ * The SQL DB Client
+ *
+ * Refer all the Events here: {@link BaseDB.on}
+ *
+ * Example:
+ * ```js
+ * const Database = new KeyDB.SQL("database", config);
+ * ```
+ */
+export class SQL extends EventEmitter implements BaseDB {
     name: string;
     type: string;
     sequelize: Sequelize;
@@ -36,6 +39,8 @@ export class SQL implements BaseDB {
     deserializer: (input: string) => any;
 
     constructor(name: string, config: Config) {
+        super();
+
         if (!isString(name)) throw new Err("Invalid Database name", "INVALID_DB_NAME");
         if (!config) throw new Err("No configuration was passed", "NO_CONFIG");
         checkConfig(config);
@@ -82,25 +87,35 @@ export class SQL implements BaseDB {
     async connect() {
         await this.sequelize.authenticate();
         await this.sequelize.sync();
+        this.emit("connect");
     }
 
     async disconnect() {
         await this.sequelize.close();
+        this.emit("disconnect");
     }
 
     async get(key: string) {
         const cachev = this.cache?.get(key);
         const mod = cachev || (await this.model.findByPk(key))?.getDataValue("value") || undefined;
 
-        return mod ? this.deserializer(mod) : undefined;
+        const val = mod ? this.deserializer(mod) : undefined;
+        this.emit("valueGet", { key, value: val });
+        return val;
     }
 
     async set(key: string, value: any) {
         const obj = { key, value: this.serializer(value) };
-        await this.model.findOrCreate({ where: obj });
+
+        const [mod, isCreated] = await this.model.findOrCreate({ where: { key } });
+        await mod.update("value", obj.value);
         this.cache?.set(obj.key, obj.value);
 
-        return this.deserializer(obj.value);
+        const val = this.deserializer(obj.value);
+        isCreated
+            ? this.emit("valueSet", { key, value: val })
+            : this.emit("valueUpdate", { key, value: val });
+        return val;
     }
 
     async delete(key: string) {
@@ -108,8 +123,8 @@ export class SQL implements BaseDB {
             where: { key }
         });
         this.cache?.delete(key);
-
-        return totalDeleted || 0;
+        this.emit("valueDelete", key, totalDeleted);
+        return totalDeleted;
     }
 
     async all() {
@@ -127,6 +142,7 @@ export class SQL implements BaseDB {
             cachedKeys.forEach(({ key }) => this.cache?.delete(key));
         }
 
+        this.emit("valueFetch", allKeys);
         return allKeys;
     }
 

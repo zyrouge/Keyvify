@@ -1,6 +1,7 @@
 import { Config } from "../Utils/Configuration";
 import * as Mongoose from "mongoose";
 import { BaseDB, Memory } from "./Base";
+import { EventEmitter } from "events";
 import * as DataParser from "../Utils/DataParser";
 import { Err } from "../Utils/Error";
 
@@ -12,12 +13,14 @@ export interface MongooseModel extends Mongoose.Document {
 /**
  * The Mongo DB Client
  * 
+ * Refer all the Events here: {@link BaseDB.on}
+ * 
  * Example:
  * ```js
  * const Database = new KeyDB.Mongo("database", config);
  * ```
  */
-export class Mongo implements BaseDB {
+export class Mongo extends EventEmitter implements BaseDB {
     name: string;
     type: string;
     uri: string;
@@ -30,6 +33,8 @@ export class Mongo implements BaseDB {
     deserializer: (input: string) => any;
 
     constructor(name: string, config: Config) {
+        super();
+
         this.name = name;
         this.type = config.dialect;
         this.mongoose = config.mongoose || new Mongoose.Mongoose();
@@ -61,40 +66,49 @@ export class Mongo implements BaseDB {
         await this.mongoose.connect(this.uri, {
             useNewUrlParser: true
         });
+        this.emit("connect");
     }
 
     async disconnect() {
         await this.mongoose.disconnect();
+        this.emit("disconnect");
     }
 
     async get(key: string) {
         const cachev = this.cache?.get(key);
         const mod = cachev || (await this.model.findOne({ key }))?.key || undefined;
-
-        return mod ? this.deserializer(mod) : undefined;
+        const val = mod ? this.deserializer(mod) : undefined;
+        this.emit("valueGet", { key, value: val });
+        return val;
     }
 
     async set(key: string, value: any) {
         const obj = { key, value: this.serializer(value) };
-        let alr = await this.model.findOne({ key });
+        let isUpdated = false;
 
+        let alr = await this.model.findOne({ key });
         if (!alr) {
             alr = new this.model(obj);
         } else {
+            isUpdated = true;
             alr.update({ value: obj.value });
         }
 
         await alr.save();
         this.cache?.set(obj.key, obj.value);
 
-        return this.deserializer(obj.value);
+        const val = this.deserializer(obj.value);
+        isUpdated
+            ? this.emit("valueUpdate", { key, value: val })
+            : this.emit("valueSet", { key, value: val });
+        return val;
     }
 
     async delete(key: string) {
-        const totalDeleted = await this.model.deleteOne({ key });
+        const totalDeleted = (await this.model.deleteOne({ key }))?.deletedCount || 0;
         this.cache?.delete(key);
-
-        return totalDeleted.deletedCount || 0;
+        this.emit("valueDelete", key, totalDeleted);
+        return totalDeleted;
     }
 
     async all() {
@@ -112,6 +126,7 @@ export class Mongo implements BaseDB {
             cachedKeys.forEach(({ key }) => this.cache?.delete(key));
         }
 
+        this.emit("valueFetch", allKeys);
         return allKeys;
     }
 
