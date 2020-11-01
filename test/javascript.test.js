@@ -1,8 +1,10 @@
-const KeyDB = require("../build");
+const { KeyDB } = require("../build");
 
-console.log(KeyDB);
-
-KeyDB({}, {
+const database = KeyDB("database", {
     lool: "xd",
     dialect: "sqlite"
+});
+
+database.on("connect", () => {
+
 });

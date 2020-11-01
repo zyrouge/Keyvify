@@ -1,7 +1,7 @@
-import { Config, checkConfig, SequelizeDialects } from "../Utils/Configuration";
+import { Config, checkConfig, isSequelizeDialect } from "../Utils/Configuration";
 import { Err } from "../Utils/Error";
 import { isString } from "lodash";
-import { Sequelize, Model, ModelCtor, DataTypes, Optional, Dialect } from "sequelize";
+import { Sequelize, Model, ModelCtor, DataTypes, Optional } from "sequelize";
 import { BaseDB, Memory } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
@@ -149,8 +149,4 @@ export class SQL extends EventEmitter implements BaseDB {
     entries() {
         return this.cache?.all() || [];
     }
-}
-
-function isSequelizeDialect(dialect: string): dialect is Dialect {
-    return SequelizeDialects.includes(dialect);
 }

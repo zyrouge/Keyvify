@@ -1,5 +1,7 @@
-import KeyDB from "../build";
+import { KeyDB } from "../build";
 
-KeyDB("kek", {
+const database = KeyDB("kek", {
     dialect: "sqlite"
 });
+
+database.on("connect", () => console.log("Connected"));

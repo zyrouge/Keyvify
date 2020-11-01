@@ -7,6 +7,10 @@ export const SequelizeDialects = ["mysql", "postgres", "sqlite", "mariadb", "mss
 export const SupportedDialects = [...SequelizeDialects, "mongodb"];
 export type SupportedDialectsType = SequelizeDialectsType | "mongodb";
 
+export function isSequelizeDialect(dialect: string): dialect is SequelizeDialectsType {
+    return SequelizeDialects.includes(dialect);
+}
+
 /**
  * KeyDB Configuration (Common for all Dialects)
  * 
