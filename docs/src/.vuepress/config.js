@@ -1,4 +1,4 @@
-const { description, website } = require('../../package')
+const { description } = require('../../package')
 const fs = require('fs')
 
 module.exports = {
@@ -40,7 +40,7 @@ module.exports = {
       },
       {
         text: 'Documentation',
-        link: website + '/docs/',
+        link: '/docs/',
         target: '_blank'
       },
       {
