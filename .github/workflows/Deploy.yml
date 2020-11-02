@@ -42,7 +42,7 @@ jobs:
           script: |
               const fs = require("fs");
               const path = require("path");
-              const pkg = require("package.json");
+              const pkg = require("./package.json");
 
               fs.writeFileSync("./docs/CNAME", pkg.website.replace("https://", ""));
 
