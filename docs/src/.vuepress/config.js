@@ -1,4 +1,4 @@
-const { description } = require('../../package')
+const { description, website } = require('../../package')
 const fs = require('fs')
 
 module.exports = {
@@ -40,7 +40,7 @@ module.exports = {
       },
       {
         text: 'Documentation',
-        link: 'https://keydb.zyrouge.gq/docs/'
+        link: website + '/docs/'
       },
       {
         text: 'NPM',
