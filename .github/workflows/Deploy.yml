@@ -42,17 +42,27 @@ jobs:
           script: |
               const fs = require("fs");
               const path = require("path");
+              const pkg = require("packake.json");
+
+              fs.writeFileSync("./docs/CNAME", pkg.website.replace("https://", ""));
+
               const all = fs.readdirSync(".");
               all.forEach(f => {
                   if (!["docs", ".git", "LICENSE", ".gitignore"].includes(f)) {
-                    try { fs.unlinkSync(`./${f}`); } catch(e) {}
-                    try { fs.rmdirSync(`./${f}`, { recursive: true }); } catch(e) {}
+                    try {
+                      fs.unlinkSync(`./${f}`);
+                      console.log(`Deleted file: ${f}`);
+                    } catch(e) {}
+                    
+                    try {
+                      fs.rmdirSync(`./${f}`, { recursive: true });
+                      console.log(`Deleted folder: ${f}`);
+                    } catch(e) {}
                   }
               });
 
       - name: CNAME & NoJekyll
         run: |
-          echo 'keydb.zyrouge.gq' > ./docs/CNAME
           touch ./docs/.nojekyll
 
       - name: Commit files

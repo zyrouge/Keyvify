@@ -41,5 +41,6 @@
   "bugs": {
     "url": "https://github.com/zyrouge/key.db/issues"
   },
-  "homepage": "https://github.com/zyrouge/key.db#readme"
+  "homepage": "https://github.com/zyrouge/key.db#readme",
+  "website": "https://keydb.js.org"
 }
