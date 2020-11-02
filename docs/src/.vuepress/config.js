@@ -40,7 +40,8 @@ module.exports = {
       },
       {
         text: 'Documentation',
-        link: website + '/docs/'
+        link: website + '/docs/',
+        target: '_blank'
       },
       {
         text: 'NPM',
