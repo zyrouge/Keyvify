@@ -1,6 +1,5 @@
 {
-  "name": "key.db-docs",
-  "private": true,
+  "name": "key.db",
   "version": "0.0.1",
   "description": "A simple key-value database ORM",
   "main": "index.js",
@@ -8,7 +7,7 @@
     "name": "ZYROUGE",
     "email": ""
   },
-  "repository": "https://github.com/zyrouge/key.db/key.db",
+  "repository": "zyrouge/key.db/key.db",
   "scripts": {
     "dev": "vuepress dev src",
     "build": "vuepress build src"

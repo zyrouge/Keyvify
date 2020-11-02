@@ -1,12 +1,11 @@
 const { description } = require('../../package')
-const path = require("path")
-const root = path.normalize(path.join(__dirname, "..", "..", ".."))
+const fs = require('fs')
 
 module.exports = {
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#title
    */
-  title: 'Key.db',
+  title: 'Key.DB',
   /**
    * Ref：https://v1.vuepress.vuejs.org/config/#description
    */
@@ -29,11 +28,11 @@ module.exports = {
    * ref：https://v1.vuepress.vuejs.org/theme/default-theme-config.html
    */
   themeConfig: {
-    repo: 'zyrouge/key.db',
-    editLinks: true,
-    docsDir: 'docs',
-    editLinkText: 'Help us improve this page!',
-    lastUpdated: true,
+    repo: '',
+    editLinks: false,
+    docsDir: '',
+    editLinkText: '',
+    lastUpdated: false,
     nav: [
       {
         text: 'Guide',
@@ -41,18 +40,29 @@ module.exports = {
       },
       {
         text: 'Documentation',
-        link: 'https://keydb.zyrouge.gq/docs'
+        link: 'https://keydb.zyrouge.gq/docs/'
       },
       {
         text: 'NPM',
         link: 'https://npmjs.com/key.db'
+      },
+      {
+        text: 'GitHub',
+        link: 'https://github.com/zyrouge/key.db'
       }
     ],
     sidebar: {
       '/guide/': [
         {
           title: 'Guide',
-          collapsable: false
+          collapsable: false,
+          children: [
+            '',
+            ...fs
+              .readdirSync(`${__dirname}/../guide`)
+              .filter(f => f.endsWith(".md") && f.toLowerCase() !== "readme.md")
+              .map(f => f.replace(".md", ""))
+          ]
         }
       ],
     }
