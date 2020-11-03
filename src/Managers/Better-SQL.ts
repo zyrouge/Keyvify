@@ -1,4 +1,4 @@
-import { Config, checkConfig } from "../Utils/Configuration";
+import { Config, checkConfig, isBetterSQLDialect } from "../Utils/Configuration";
 import { Err } from "../Utils/Error";
 import { isString } from "lodash";
 import Sqlite from "better-sqlite3";
@@ -20,7 +20,7 @@ import Constants from "../Utils/Constants";
  */
 export class BetterSQL extends EventEmitter implements BaseDB {
     name: string;
-    type: string;
+    type = "better-sqlite";
     sqlite: Sqlite.Database;
 
     cache?: Memory;
@@ -34,9 +34,8 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         if (!name) throw new Err(...Constants.NO_DB_NAME);
         if (!isString(name)) throw new Err(...Constants.INVALID_DB_NAME);
         if (!config) throw new Err(...Constants.NO_CONFIG);
-        checkConfig(config);
-
-        if (config.dialect !== "better-sqlite") throw new Err(...Constants.INVALID_DIALECT);
+        checkConfig(config, false);
+        if (!isBetterSQLDialect(config.dialect)) throw new Err(...Constants.INVALID_DIALECT);
         if (!config.storage) throw new Err(...Constants.NO_SQLITE_STORAGE);
         if (!isString(config.storage)) throw new Err(...Constants.INVALID_SQLITE_STORAGE);
 
@@ -45,9 +44,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
             : path.join(process.cwd(), config.storage);
 
         this.name = name;
-        this.type = config.dialect;
-        this.sqlite = config.bettersql || new Sqlite(storagePath);
-        this.connected = false;
+        this.sqlite = config.dialect instanceof Sqlite ? config.dialect : new Sqlite(storagePath);
 
         if (config.disableCache !== true) {
             this.cache = new Memory();

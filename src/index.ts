@@ -37,9 +37,9 @@ export function Keyvify(name: string, config: ConfigUtils.Config) {
 
     if (ConfigUtils.isSequelizeDialect(config.dialect)) {
         return new SQLManager.SQL(name, config);
-    } else if (config.dialect === "better-sqlite") {
+    } else if (ConfigUtils.isBetterSQLDialect(config.dialect)) {
         return new BSQL.BetterSQL(name, config);
-    } else if (config.dialect === "mongodb") {
+    } else if (ConfigUtils.isMongoDialect(config.dialect)) {
         return new MongoDBManager.Mongo(name, config);
     } else throw new Err(...Constants.INVALID_DIALECT);
 }

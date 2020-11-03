@@ -1,4 +1,4 @@
-import { Config, checkConfig } from "../Utils/Configuration";
+import { Config, checkConfig, isMongoDialect } from "../Utils/Configuration";
 import { isString } from "lodash";
 import * as Mongoose from "mongoose";
 import { BaseDB, Memory } from "./Base";
@@ -24,7 +24,7 @@ export interface MongooseModel extends Mongoose.Document {
  */
 export class Mongo extends EventEmitter implements BaseDB {
     name: string;
-    type: string;
+    type = "mongodb";
     uri: string;
     mongoose: Mongoose.Mongoose;
     schema: Mongoose.Schema;
@@ -41,11 +41,11 @@ export class Mongo extends EventEmitter implements BaseDB {
         if (!name) throw new Err(...Constants.NO_DB_NAME);
         if (!isString(name)) throw new Err(...Constants.INVALID_DB_NAME);
         if (!config) throw new Err(...Constants.NO_CONFIG);
-        checkConfig(config);
+        checkConfig(config, false);
+        if (config.dialect && !isMongoDialect(config.dialect)) throw new Err(...Constants.INVALID_DIALECT);
 
         this.name = name;
-        this.type = config.dialect;
-        this.mongoose = config.mongoose || new Mongoose.Mongoose();
+        this.mongoose = config.dialect instanceof Mongoose.Mongoose ? config.dialect : new Mongoose.Mongoose();
 
         if (!config.uri) throw new Err(...Constants.MISSING_MONGODB_URI);
         this.uri = config.uri;

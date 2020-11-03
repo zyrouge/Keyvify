@@ -20,6 +20,7 @@
     "@types/serialize-javascript": "^4.0.0",
     "@types/validator": "^13.1.0",
     "better-sqlite3": "^7.1.1",
+    "jest": "^26.6.2",
     "mongoose": ">=5.x",
     "release-it": "^14.2.1",
     "sequelize": ">=6.x",

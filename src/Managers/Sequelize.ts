@@ -46,8 +46,7 @@ export class SQL extends EventEmitter implements BaseDB {
         if (!name) throw new Err(...Constants.NO_DB_NAME);
         if (!isString(name)) throw new Err(...Constants.INVALID_DB_NAME);
         if (!config) throw new Err(...Constants.NO_CONFIG);
-        checkConfig(config);
-
+        checkConfig(config, false);
         if (!isSequelizeDialect(config.dialect)) throw new Err(...Constants.INVALID_SQL_DIALECT);
         if (config.dialect === "sqlite" && !config.storage) throw new Err(...Constants.NO_SQLITE_STORAGE);
 
@@ -56,8 +55,8 @@ export class SQL extends EventEmitter implements BaseDB {
             : undefined;
 
         this.name = name;
-        this.type = config.dialect;
-        this.sequelize = config.sequelize || new Sequelize({
+        this.type = config.dialect instanceof Sequelize ? config.dialect.getDialect() : config.dialect;
+        this.sequelize = config.dialect instanceof Sequelize ? config.dialect : new Sequelize({
             database: config.database,
             username: config.username,
             password: config.password,
