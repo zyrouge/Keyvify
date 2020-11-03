@@ -101,18 +101,18 @@ export interface Config {
 }
 
 export function checkConfig(config: Config, checkDialect: boolean = true) {
-    if (config.username && !isString(config.username)) throw new Err("Invalid username", "INVALID_USERNAME");
-    if (config.password && !isString(config.password)) throw new Err("Invalid password", "INVALID_PASSWORD");
-    if (config.database && !isString(config.database)) throw new Err("Invalid database", "INVALID_DATABASE");
-    if (config.host && !isString(config.host)) throw new Err("Invalid host", "INVALID_HOST");
-    if (config.port !== undefined && !isNumber(config.uri)) throw new Err("Invalid port", "INVALID_PORT");
-    if (config.uri && !isString(config.uri)) throw new Err("Invalid URI", "INVALID_URI");
-    if (config.storage && !isString(config.storage)) throw new Err("Invalid storage", "INVALID_STORAGE");
+    if (config.username && !isString(config.username)) throw new Err(...Constants.INVALID_USERNAME);
+    if (config.password && !isString(config.password)) throw new Err(...Constants.INVALID_PASSWORD);
+    if (config.database && !isString(config.database)) throw new Err(...Constants.INVALID_DATABASE);
+    if (config.host && !isString(config.host)) throw new Err(...Constants.INVALID_HOST);
+    if (config.port !== undefined && !isNumber(config.uri)) throw new Err(...Constants.INVALID_PORT);
+    if (config.uri && !isString(config.uri)) throw new Err(...Constants.INVALID_URI);
+    if (config.storage && !isString(config.storage)) throw new Err(...Constants.INVALID_STORAGE);
     if (checkDialect && !config.dialect) throw new Err(...Constants.NO_DIALECT);
     if (checkDialect && !isSupportedDialect(config.dialect)) throw new Err(...Constants.INVALID_DIALECT);
-    if (config.disableCache !== undefined && !isBoolean(config.disableCache)) throw new Err("Invalid cache option", "INVALID_CACHE_OPTION");
-    if (config.serializer && !isFunction(config.serializer)) throw new Err("Invalid serializer", "INVALID_SERIALIZER");
-    if (config.deserializer && !isFunction(config.deserializer)) throw new Err("Invalid deserializer", "INVALID_DESERIALIZER");
+    if (config.disableCache !== undefined && !isBoolean(config.disableCache)) throw new Err(...Constants.INVALID_CACHE_OPTION);
+    if (config.serializer && !isFunction(config.serializer)) throw new Err(...Constants.INVALID_SERIALIZER);
+    if (config.deserializer && !isFunction(config.deserializer)) throw new Err(...Constants.INVALID_DESERIALIZER);
 }
 
 export const SequelizeDialectsStrs = ["mysql", "postgres", "sqlite", "mariadb", "mssql"];
