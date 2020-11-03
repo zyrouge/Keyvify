@@ -13,23 +13,23 @@ import { Err } from "./Utils/Error";
  * 
  * CommonJS
  * ```js
- * const { KVDB } = require("kv.db");
+ * const { Keyvify } = require("keyvify");
  * // (or)
- * const KVDB = require("kv.db").KVDB;
+ * const Keyvify = require("keyvify").Keyvify;
  * 
- * const Database = KVDB("database", config);
+ * const Database = Keyvify("database", config);
  * ```
  * 
  * Typescript & ModernJS
  * ```js
- * import { KVDB } from "kv.db";
+ * import { Keyvify } from "keyvify";
  * // (or)
- * import KVDB from "kv.db";
+ * import Keyvify from "keyvify";
  * 
- * const Database = KVDB("database", config);
+ * const Database = Keyvify("database", config);
  * ```
  */
-export function KVDB(name: string, config: ConfigUtils.Config) {
+export function Keyvify(name: string, config: ConfigUtils.Config) {
     if (!name) throw new Err(...Constants.NO_DB_NAME);
     if (!isString(name)) throw new Err(...Constants.INVALID_DB_NAME);
     if (!config) throw new Err(...Constants.NO_CONFIG);
@@ -44,11 +44,11 @@ export function KVDB(name: string, config: ConfigUtils.Config) {
     } else throw new Err(...Constants.INVALID_DIALECT);
 }
 
-export module KVDB {
+export module Keyvify {
     export import SQL = SQLManager.SQL;
     export import MongoDB = MongoDBManager.Mongo;
     export import BetterSQL = BSQL.BetterSQL;
     export import Utils = ConfigUtils;
 }
 
-export default KVDB;
+export default Keyvify;

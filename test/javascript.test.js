@@ -1,6 +1,6 @@
-const { KVDB } = require("../build");
+const { Keyvify } = require("../build");
 
-const database = KVDB("database", {
+const database = Keyvify("database", {
     lool: "xd",
     dialect: "sqlite"
 });

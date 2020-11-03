@@ -3,15 +3,15 @@
     src="./docs/src/.vuepress/public/assets/logo.png" onerror="this.src = '/assets/logo.png'" width="230px">
 </p>
 
-<h1 align="center">KV.DB</h1>
+<h1 align="center">Keyvify</h1>
 <p align="center">A simple promise based key-value database ORM</p>
 
-[![npm version](https://badgen.net/npm/v/kv.db)](https://www.npmjs.com/package/kv.db)
-[![npm downloads](https://badgen.net/npm/dm/kv.db)](https://www.npmjs.com/package/kv.db)
+[![npm version](https://badgen.net/npm/v/keyvify)](https://www.npmjs.com/package/keyvify)
+[![npm downloads](https://badgen.net/npm/dm/keyvify)](https://www.npmjs.com/package/keyvify)
 
 ## Installation
 ```console
-$ npm install kv.db
+$ npm install keyvify
 ```
 
 and also a Dialect
@@ -28,7 +28,7 @@ $ npm i tedious # Microsoft SQL Server
 
 ## Resources
 
-* [Website](https://kvdb.js.org)
-* [Documentation](https://kvdb.js.org/docs)
+* [Website](https://keyvify.js.org)
+* [Documentation](https://keyvify.js.org/docs)
 * [Changelogs](./changelog.md)
-* [NPM](https://npmjs.com/kv.db)
+* [NPM](https://npmjs.com/keyvify)

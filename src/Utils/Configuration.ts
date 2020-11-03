@@ -13,7 +13,7 @@ export function isSequelizeDialect(dialect: string): dialect is SequelizeDialect
 }
 
 /**
- * KVDB Configuration (Common for all Dialects)
+ * Keyvify Configuration (Common for all Dialects)
  * 
  * Example:
  * 

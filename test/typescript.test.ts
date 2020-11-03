@@ -1,9 +1,9 @@
-import { KVDB } from "../lib";
+import { Keyvify } from "../lib";
 
-const config: KVDB.Utils.Config = {
+const config: Keyvify.Utils.Config = {
     dialect: "sqlite"
 }
 
-const database = KVDB("kek", config);
+const database = Keyvify("kek", config);
 
 database.on("connect", () => console.log("Connected"));

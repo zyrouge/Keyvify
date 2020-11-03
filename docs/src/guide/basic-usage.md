@@ -3,7 +3,7 @@
 ## Javascript
 
 ```js
-const { KVDB } = require("kv.db");
+const { Keyvify } = require("keyvify");
 
 const config = {
     dialect: "postgres", // Can be any dialect
@@ -13,7 +13,7 @@ const config = {
     port: "8080"
 }
 
-const Database = KVDB("database_name", config);
+const Database = Keyvify("database_name", config);
 
 const doSomething = async () => {
     Database.set("user_12345", { username: "SpookyMan" }); // Returns: Spookyman
@@ -31,9 +31,9 @@ doSomething();
 ## Typescript
 
 ```ts
-import { KVDB } from "kv.db";
+import { Keyvify } from "keyvify";
 
-const config: KVDB.Utils.Config = {
+const config: Keyvify.Utils.Config = {
     dialect: "postgres", // Can be any dialect
     username: "someuser",
     password: "youshallnotpass",
@@ -41,7 +41,7 @@ const config: KVDB.Utils.Config = {
     port: "8080"
 }
 
-const Database = KVDB("database_name", config);
+const Database = Keyvify("database_name", config);
 
 const doSomething = async () => {
     Database.set("user_12345", { username: "SpookyMan" }); // Returns: Spookyman

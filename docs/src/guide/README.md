@@ -1,7 +1,7 @@
 # Installation
 
 ```console
-$ npm install kv.db
+$ npm install keyvify
 ```
 
 # Installing a Dialect
@@ -21,15 +21,15 @@ MSSQL |`$ npm install tedious`
 ### CommonJS
 
 ```js
-const { KVDB } = require("kv.db"); // Destructuring
+const { Keyvify } = require("keyvify"); // Destructuring
 // or
-const KVDB = require("kv.db").KVDB;
+const Keyvify = require("keyvify").Keyvify;
 ```
 
 ### ModernJS and Typescript
 
 ```js
-import { KVDB } from "kv.db";
+import { Keyvify } from "keyvify";
 // or
-import KVDB from "kv.db"; // Default export
+import Keyvify from "keyvify"; // Default export
 ```
