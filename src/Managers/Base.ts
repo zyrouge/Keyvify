@@ -54,14 +54,35 @@ export interface BaseDB {
     on(event: "valueFetch", listener: (pairs: Pair[]) => void): this;
 }
 
-export class Memory extends Map<string, string> {
+export interface BaseCache {
+    get: (key: string) => string | undefined;
+    set: (key: string, value: string) => string | undefined;
+    delete: (key: string) => number;
+    entries: () => Pair[];
+}
+
+export class Memory implements BaseCache {
     type = "Memory";
+    base: Map<string, string>;
 
     constructor() {
-        super();
+        this.base = new Map();
     }
 
-    all() {
-        return Object.entries(this).map(([key, value]) => ({ key, value }));
+    get(key: string) {
+        return this.base.get(key);
+    }
+
+    set(key: string, value: string) {
+        this.base.set(key, value);
+        return value;
+    }
+
+    delete(key: string) {
+        return Number(this.base.delete(key));
+    }
+
+    entries() {
+        return Object.entries(this.base).map(([key, value]) => ({ key, value }));
     }
 }

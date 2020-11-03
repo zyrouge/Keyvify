@@ -150,6 +150,6 @@ export class BetterSQL extends EventEmitter implements BaseDB {
     }
 
     entries() {
-        return this.cache?.all() || [];
+        return this.cache?.entries() || [];
     }
 }

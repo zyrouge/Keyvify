@@ -154,6 +154,6 @@ export class Mongo extends EventEmitter implements BaseDB {
     }
 
     entries() {
-        return this.cache?.all() || [];
+        return this.cache?.entries() || [];
     }
 }
