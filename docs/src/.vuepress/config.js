@@ -1,4 +1,4 @@
-const { description, website } = require('../../package')
+const { description } = require('../../package')
 const fs = require('fs')
 
 module.exports = {
@@ -17,7 +17,7 @@ module.exports = {
    * ref：https://v1.vuepress.vuejs.org/config/#head
    */
   head: [
-    ['meta', { name: 'theme-color', content: '#3eaf7c' }],
+    ['meta', { name: 'theme-color', content: '#53B3CB' }],
     ['meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }],
     ['meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black' }]
   ],
@@ -40,7 +40,8 @@ module.exports = {
       },
       {
         text: 'Documentation',
-        link: website + '/docs/'
+        link: '/docs/',
+        target: '_blank'
       },
       {
         text: 'NPM',
