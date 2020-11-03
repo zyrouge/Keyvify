@@ -30,5 +30,5 @@ $ npm i tedious # Microsoft SQL Server
 
 * [Website](https://keydb.js.org)
 * [Documentation](https://keydb.js.org/docs)
-* [Changelogs](https://github.com/zyrouge/Key.DB/releases)
+* [Changelogs](./changelog.md)
 * [NPM](https://npmjs.com/key.db)
