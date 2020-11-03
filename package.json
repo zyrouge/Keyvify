@@ -2,8 +2,11 @@
   "name": "key.db",
   "version": "1.0.0-alpha",
   "description": "A simple key-value pair ORM",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/"
+  ],
   "dependencies": {
     "lodash": "^4.17.20",
     "serialize-javascript": "^5.0.1"
@@ -37,7 +40,8 @@
     "build": "tsc",
     "test:js": "node test/javascript.test.js",
     "docs": "typedoc",
-    "web": "cd docs && yarn dev"
+    "web": "cd docs && yarn dev",
+    "release": "release-it"
   },
   "repository": {
     "type": "git",
