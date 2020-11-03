@@ -105,3 +105,4 @@ docs/src/.vuepress/public/docs
 
 package-lock.json
 lib
+CHANGELOG.md
