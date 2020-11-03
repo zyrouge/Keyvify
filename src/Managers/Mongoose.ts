@@ -88,6 +88,9 @@ export class Mongo extends EventEmitter implements BaseDB {
     }
 
     async get(key: string) {
+        if (!key) throw new Err(...Constants.NO_KEY);
+        if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
+
         const cachev = this.cache?.get(key);
         const mod = cachev || (await this.model.findOne({ key }))?.key;
         const val = mod ? this.deserializer(mod) : undefined;
@@ -96,6 +99,10 @@ export class Mongo extends EventEmitter implements BaseDB {
     }
 
     async set(key: string, value: any) {
+        if (!key) throw new Err(...Constants.NO_KEY);
+        if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
+        if (!value) throw new Err(...Constants.NO_VALUE);
+
         const serval = this.serializer(value);
         let oldVal: any;
 
@@ -118,6 +125,9 @@ export class Mongo extends EventEmitter implements BaseDB {
     }
 
     async delete(key: string) {
+        if (!key) throw new Err(...Constants.NO_KEY);
+        if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
+
         const totalDeleted = (await this.model.deleteOne({ key }))?.deletedCount || 0;
         this.cache?.delete(key);
         this.emit("valueDelete", key, totalDeleted);

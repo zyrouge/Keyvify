@@ -103,6 +103,9 @@ export class SQL extends EventEmitter implements BaseDB {
     }
 
     async get(key: string) {
+        if (!key) throw new Err(...Constants.NO_KEY);
+        if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
+
         const cachev = this.cache?.get(key);
         const mod = cachev || (await this.model.findByPk(key))?.getDataValue("value") || undefined;
 
@@ -112,6 +115,10 @@ export class SQL extends EventEmitter implements BaseDB {
     }
 
     async set(key: string, value: any) {
+        if (!key) throw new Err(...Constants.NO_KEY);
+        if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
+        if (!value) throw new Err(...Constants.NO_VALUE);
+
         const serval = this.serializer(value);
         let oldVal: any;
 
@@ -131,6 +138,9 @@ export class SQL extends EventEmitter implements BaseDB {
     }
 
     async delete(key: string) {
+        if (!key) throw new Err(...Constants.NO_KEY);
+        if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
+
         const totalDeleted = await this.model.destroy({
             where: { key }
         });

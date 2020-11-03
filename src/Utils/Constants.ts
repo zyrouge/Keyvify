@@ -9,7 +9,11 @@ const Constants = {
     NO_SQLITE_STORAGE: ["No storage path was passed", "NO_SQLITE_STORAGE"] as cc,
     INVALID_SQLITE_STORAGE: ["Invalid storage path was passed", "INVALID_SQLITE_STORAGE"] as cc,
     ERROR_OPENING_CONNECTION: ["Could not open connection", "FAILED_TO_OPEN"] as cc,
-    MISSING_MONGODB_URI: ["No Mongoose URI was passed", "MISSING_MONGODB_URI"] as cc
+    MISSING_MONGODB_URI: ["No Mongoose URI was passed", "MISSING_MONGODB_URI"] as cc,
+
+    NO_KEY: ["No key was passed", "NO_KEY"] as cc,
+    INVALID_KEY: ["Invalid key was passed", "INVALID_KEY"] as cc,
+    NO_VALUE: ["No value was passed", "NO_VALUE"] as cc
 }
 
 export default Constants;

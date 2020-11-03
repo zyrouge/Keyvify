@@ -82,6 +82,9 @@ export class BetterSQL extends EventEmitter implements BaseDB {
     }
 
     async get(key: string) {
+        if (!key) throw new Err(...Constants.NO_KEY);
+        if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
+
         let rval = this.cache?.get(key);
         if (!rval) {
             const raw = this.sqlite.prepare(`SELECT * FROM ${this.name} WHERE key = ?;`).get(key);
@@ -94,6 +97,10 @@ export class BetterSQL extends EventEmitter implements BaseDB {
     }
 
     async set(key: string, value: any) {
+        if (!key) throw new Err(...Constants.NO_KEY);
+        if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
+        if (!value) throw new Err(...Constants.NO_VALUE);
+
         const serval = this.serializer(value);
         let oldVal: any;
 
@@ -114,6 +121,9 @@ export class BetterSQL extends EventEmitter implements BaseDB {
     }
 
     async delete(key: string) {
+        if (!key) throw new Err(...Constants.NO_KEY);
+        if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
+
         const { changes: totalDeleted } = this.sqlite.prepare(`DELETE FROM ${this.name} WHERE key = ?;`).run(key);
         this.cache?.delete(key);
         this.emit("valueDelete", key, totalDeleted);
