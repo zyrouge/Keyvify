@@ -1,6 +1,6 @@
 <p align="center">
   <img
-    src="./docs/src/.vuepress/public/assets/logo.png" onerror="this.src='/assets/logo.png'" width="230px">
+    src="./docs/src/.vuepress/public/assets/logo.png" onerror="this.src = '/assets/logo.png'" width="230px">
 </p>
 
 <h1 align="center">KeyDB</h1>
@@ -28,7 +28,7 @@ $ npm i tedious # Microsoft SQL Server
 
 ## Resources
 
-* [Website](https://keydb.zyrouge.gq)
-* [Documentation](https://keydb.zyrouge.gq/docs)
-* Changelogs
+* [Website](https://keydb.js.org)
+* [Documentation](https://keydb.js.org/docs)
+* [Changelogs](https://github.com/zyrouge/Key.DB/releases)
 * [NPM](https://npmjs.com/key.db)
