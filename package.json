@@ -44,7 +44,11 @@
     "database",
     "key-value",
     "key.db",
-    "sql"
+    "sql",
+    "sequelize",
+    "mongoose",
+    "mongo.db",
+    "better-sqlite"
   ],
   "author": "ZYROUGE",
   "license": "MIT",
