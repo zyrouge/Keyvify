@@ -21,6 +21,7 @@ $ npm i pg pg-hstore # Postgres
 $ npm i mysql2 # MySQL
 $ npm i mariadb # MariaDB
 $ npm i sqlite3 # SQLite
+$ npm i better-sqlite3 # Better SQLite
 $ npm i mongoose # MongoDB
 $ npm i tedious # Microsoft SQL Server
 ```

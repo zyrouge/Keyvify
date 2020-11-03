@@ -1,4 +1,5 @@
 import { Config, checkConfig, isSequelizeDialect } from "../Utils/Configuration";
+import Constants from "../Utils/Constants";
 import { Err } from "../Utils/Error";
 import { isString } from "lodash";
 import { Sequelize, Model, ModelCtor, DataTypes, Optional } from "sequelize";
@@ -35,18 +36,20 @@ export class SQL extends EventEmitter implements BaseDB {
     model: ModelCtor<SQLModel>;
 
     cache?: Memory;
+    connected: boolean;
     serializer: (input: any) => string;
     deserializer: (input: string) => any;
 
     constructor(name: string, config: Config) {
         super();
 
-        if (!isString(name)) throw new Err("Invalid Database name", "INVALID_DB_NAME");
-        if (!config) throw new Err("No configuration was passed", "NO_CONFIG");
+        if (!name) throw new Err(...Constants.NO_DB_NAME);
+        if (!isString(name)) throw new Err(...Constants.INVALID_DB_NAME);
+        if (!config) throw new Err(...Constants.NO_CONFIG);
         checkConfig(config);
 
-        if (!isSequelizeDialect(config.dialect)) throw new Err("Invalid SQL Dialect", "INVALID_SQL_DIALECT");
-        if (config.dialect === "sqlite" && !config.storage) throw new Err("No storage path was passed", "NO_SQLITE_STORAGE");
+        if (!isSequelizeDialect(config.dialect)) throw new Err(...Constants.INVALID_SQL_DIALECT);
+        if (config.dialect === "sqlite" && !config.storage) throw new Err(...Constants.NO_SQLITE_STORAGE);
 
         const storagePath = config.storage && !path.isAbsolute(config.storage)
             ? path.join(process.cwd(), config.storage)
@@ -80,6 +83,9 @@ export class SQL extends EventEmitter implements BaseDB {
         if (config.disableCache !== true) {
             this.cache = new Memory();
         }
+
+        this.connected = false;
+
         this.serializer = config.serializer || DataParser.serialize;
         this.deserializer = config.deserializer || DataParser.deserialize;
     }
@@ -87,6 +93,7 @@ export class SQL extends EventEmitter implements BaseDB {
     async connect() {
         await this.sequelize.authenticate();
         await this.sequelize.sync();
+        this.connected = true;
         this.emit("connect");
     }
 
@@ -105,18 +112,18 @@ export class SQL extends EventEmitter implements BaseDB {
     }
 
     async set(key: string, value: any) {
-        const obj = { key, value: this.serializer(value) };
+        const serval = this.serializer(value);
         let oldVal: any;
 
         const [mod, isCreated] = await this.model.findOrCreate({ where: { key } });
         if (!isCreated) {
             const __v = mod.getDataValue("value");
             oldVal = __v ? this.deserializer(__v) : undefined;
-            await mod.update("value", obj.value);
+            await mod.update("value", serval);
         }
 
-        this.cache?.set(obj.key, obj.value);
-        const val = this.deserializer(obj.value);
+        this.cache?.set(key, serval);
+        const val = this.deserializer(serval);
         oldVal
             ? this.emit("valueUpdate", { key, value: oldVal }, { key, value: val })
             : this.emit("valueSet", { key, value: val });

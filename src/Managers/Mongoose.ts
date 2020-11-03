@@ -1,9 +1,11 @@
-import { Config } from "../Utils/Configuration";
+import { Config, checkConfig } from "../Utils/Configuration";
+import { isString } from "lodash";
 import * as Mongoose from "mongoose";
 import { BaseDB, Memory } from "./Base";
 import { EventEmitter } from "events";
 import * as DataParser from "../Utils/DataParser";
 import { Err } from "../Utils/Error";
+import Constants from "../Utils/Constants";
 
 export interface MongooseModel extends Mongoose.Document {
     key: string;
@@ -29,17 +31,23 @@ export class Mongo extends EventEmitter implements BaseDB {
     model: Mongoose.Model<MongooseModel>;
 
     cache?: Memory;
+    connected: boolean;
     serializer: (input: any) => string;
     deserializer: (input: string) => any;
 
     constructor(name: string, config: Config) {
         super();
 
+        if (!name) throw new Err(...Constants.NO_DB_NAME);
+        if (!isString(name)) throw new Err(...Constants.INVALID_DB_NAME);
+        if (!config) throw new Err(...Constants.NO_CONFIG);
+        checkConfig(config);
+
         this.name = name;
         this.type = config.dialect;
         this.mongoose = config.mongoose || new Mongoose.Mongoose();
 
-        if (!config.uri) throw new Err("No Mongoose URI was passed", "MISSING_MONGODB_URI");
+        if (!config.uri) throw new Err(...Constants.MISSING_MONGODB_URI);
         this.uri = config.uri;
 
         this.schema = new Mongoose.Schema({
@@ -58,6 +66,10 @@ export class Mongo extends EventEmitter implements BaseDB {
         if (config.disableCache !== true) {
             this.cache = new Memory();
         }
+
+        this.connected = false;
+        if (this.mongoose.connection.readyState) this.connected = true;
+
         this.serializer = config.serializer || DataParser.serialize;
         this.deserializer = config.deserializer || DataParser.deserialize;
     }
@@ -66,6 +78,7 @@ export class Mongo extends EventEmitter implements BaseDB {
         await this.mongoose.connect(this.uri, {
             useNewUrlParser: true
         });
+        this.connected = true;
         this.emit("connect");
     }
 
@@ -76,28 +89,28 @@ export class Mongo extends EventEmitter implements BaseDB {
 
     async get(key: string) {
         const cachev = this.cache?.get(key);
-        const mod = cachev || (await this.model.findOne({ key }))?.key || undefined;
+        const mod = cachev || (await this.model.findOne({ key }))?.key;
         const val = mod ? this.deserializer(mod) : undefined;
         this.emit("valueGet", { key, value: val });
         return val;
     }
 
     async set(key: string, value: any) {
-        const obj = { key, value: this.serializer(value) };
+        const serval = this.serializer(value);
         let oldVal: any;
 
         let alr = await this.model.findOne({ key });
         if (!alr) {
-            alr = new this.model(obj);
+            alr = new this.model({ key, val: serval });
         } else {
             oldVal = alr.value ? this.deserializer(alr.value) : undefined;
-            alr.update({ value: obj.value });
+            alr.update({ value: serval });
         }
 
         await alr.save();
-        this.cache?.set(obj.key, obj.value);
+        this.cache?.set(key, value);
 
-        const val = this.deserializer(obj.value);
+        const val = this.deserializer(value);
         oldVal
             ? this.emit("valueUpdate", { key, value: oldVal }, { key, value: val })
             : this.emit("valueSet", { key, value: val });

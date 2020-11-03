@@ -7,6 +7,7 @@ export interface BaseDB {
     type: string;
     name: string;
     cache?: Memory;
+    connected: boolean;
 
     connect: () => Promise<void>;
     disconnect: () => Promise<void>;

@@ -1,11 +1,12 @@
 import { Sequelize, Dialect as SequelizeDialectsType } from "sequelize";
 import { Mongoose } from "mongoose";
+import BetterSqlite from "better-sqlite3";
 import { Err } from "./Error";
 import { isString, isNumber, isFunction, isBoolean } from "lodash";
 
 export const SequelizeDialects = ["mysql", "postgres", "sqlite", "mariadb", "mssql"];
-export const SupportedDialects = [...SequelizeDialects, "mongodb"];
-export type SupportedDialectsType = SequelizeDialectsType | "mongodb";
+export const SupportedDialects = [...SequelizeDialects, "mongodb", "better-sqlite"];
+export type SupportedDialectsType = SequelizeDialectsType | "mongodb" | "better-sqlite";
 
 export function isSequelizeDialect(dialect: string): dialect is SequelizeDialectsType {
     return SequelizeDialects.includes(dialect);
@@ -96,6 +97,11 @@ export interface Config {
     mongoose?: Mongoose;
 
     /**
+     * Predefined Better-SQLite instance (only when using better-sqlite3)
+     */
+    bettersql?: BetterSqlite.Database;
+
+    /**
      * Whether to disable caching
      */
     disableCache?: boolean;
@@ -120,8 +126,9 @@ export function checkConfig(config: Config) {
     if (config.uri && !isString(config.uri)) throw new Err("Invalid URI", "INVALID_URI");
     if (!config.dialect || !isString(config.dialect) || !SupportedDialects.includes(config.dialect)) throw new Err("Invalid dialect", "INVALID_DIALECT");
     if (config.storage && !isString(config.storage)) throw new Err("Invalid storage", "INVALID_STORAGE");
-    if (config.sequelize && !(config.sequelize instanceof Sequelize)) throw new Err("Invalid sequelize", "INVALID_SEQUELIZE_INSTANCE");
-    if (config.mongoose && !(config.mongoose instanceof Mongoose)) throw new Err("Invalid mongoose", "INVALID_MONGOOSE_INSTANCE");
+    if (config.sequelize && !(config.sequelize instanceof Sequelize)) throw new Err("Invalid sequelize instance", "INVALID_SEQUELIZE_INSTANCE");
+    if (config.mongoose && !(config.mongoose instanceof Mongoose)) throw new Err("Invalid mongoose instance", "INVALID_MONGOOSE_INSTANCE");
+    if (config.bettersql && !(config.bettersql instanceof BetterSqlite)) throw new Err("Invalid better-sqlite3 instance", "INVALID_BETTERSQLITE3_INSTANCE");
     if (config.disableCache !== undefined && !isBoolean(config.disableCache)) throw new Err("Invalid cache option", "INVALID_CACHE_OPTION");
     if (config.serializer && !isFunction(config.serializer)) throw new Err("Invalid serializer", "INVALID_SERIALIZER");
     if (config.deserializer && !isFunction(config.deserializer)) throw new Err("Invalid deserializer", "INVALID_DESERIALIZER");

@@ -9,16 +9,26 @@
     "serialize-javascript": "^5.0.1"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^5.4.1",
     "@types/lodash": "^4.14.163",
     "@types/mongoose": "^5.7.36",
     "@types/node": "^14.14.6",
     "@types/serialize-javascript": "^4.0.0",
     "@types/validator": "^13.1.0",
-    "mongoose": ">=5.x",
+    "better-sqlite3": "^7.1.1",
     "release-it": "^14.2.1",
-    "sequelize": "^6.3.5",
     "typedoc": "^0.19.2",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "mongoose": ">=5.x",
+    "sequelize": ">=6.x"
+  },
+  "peerDependenciesMeta": {
+    "mongoose": {
+      "optional": true
+    },
+    "sequelize": {
+      "optional": true
+    }
   },
   "scripts": {
     "build": "tsc",
