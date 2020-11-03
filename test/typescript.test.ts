@@ -1,9 +1,9 @@
-import { KeyDB } from "../build";
+import { KVDB } from "../lib";
 
-const config: KeyDB.Utils.Config = {
+const config: KVDB.Utils.Config = {
     dialect: "sqlite"
 }
 
-const database = KeyDB("kek", config);
+const database = KVDB("kek", config);
 
 database.on("connect", () => console.log("Connected"));

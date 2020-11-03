@@ -19,7 +19,7 @@ export interface MongooseModel extends Mongoose.Document {
  * 
  * Example:
  * ```js
- * const Database = new KeyDB.Mongo("database", config);
+ * const Database = new KVDB.Mongo("database", config);
  * ```
  */
 export class Mongo extends EventEmitter implements BaseDB {

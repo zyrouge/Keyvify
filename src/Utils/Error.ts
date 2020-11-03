@@ -3,7 +3,7 @@ export class Err extends Error {
 
     constructor(message: string, name?: string) {
         super();
-        this.name = `KeyDB_${name || "Error"}`;
+        this.name = `KVDB_${name || "Error"}`;
         this.code = this.name;
         this.message = message;
         Error.captureStackTrace(this, this.constructor);

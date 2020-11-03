@@ -15,7 +15,7 @@ import Constants from "../Utils/Constants";
  *
  * Example:
  * ```js
- * const Database = new KeyDB.BetterSQL("database", config);
+ * const Database = new KVDB.BetterSQL("database", config);
  * ```
  */
 export class BetterSQL extends EventEmitter implements BaseDB {

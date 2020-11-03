@@ -69,7 +69,7 @@
     "docs"
   ],
   "typedocOptions": {
-    "name": "Key.DB Documentation",
+    "name": "KV.DB Documentation",
     "out": "./docs/src/.vuepress/public/docs",
     "json": "./docs/src/.vuepress/public/docs/docs.json",
     "mode": "file"

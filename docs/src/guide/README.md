@@ -1,7 +1,7 @@
 # Installation
 
 ```console
-$ npm install key.db
+$ npm install kv.db
 ```
 
 # Installing a Dialect
@@ -21,15 +21,15 @@ MSSQL |`$ npm install tedious`
 ### CommonJS
 
 ```js
-const { KeyDB } = require("key.db"); // Destructuring
+const { KVDB } = require("kv.db"); // Destructuring
 // or
-const KeyDB = require("key.db").KeyDB;
+const KVDB = require("kv.db").KVDB;
 ```
 
 ### ModernJS and Typescript
 
 ```js
-import { KeyDB } from "key.db";
+import { KVDB } from "kv.db";
 // or
-import KeyDB from "key.db"; // Default export
+import KVDB from "kv.db"; // Default export
 ```

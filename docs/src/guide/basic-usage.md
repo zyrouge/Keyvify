@@ -3,7 +3,7 @@
 ## Javascript
 
 ```js
-const { KeyDB } = require("key.db");
+const { KVDB } = require("kv.db");
 
 const config = {
     dialect: "postgres", // Can be any dialect
@@ -13,16 +13,16 @@ const config = {
     port: "8080"
 }
 
-const Database = KeyDB("database_name", config);
+const Database = KVDB("database_name", config);
 
 const doSomething = async () => {
-    KeyDB.set("user_12345", { username: "SpookyMan" }); // Returns: Spookyman
+    Database.set("user_12345", { username: "SpookyMan" }); // Returns: Spookyman
 
-    KeyDB.get("user_54321"); // Returns: { username: SomeUser }
+    Database.get("user_54321"); // Returns: { username: SomeUser }
 
-    KeyDB.delete("user_12345"); // Returns: 1 (no. of deleted keys)
+    Database.delete("user_12345"); // Returns: 1 (no. of deleted keys)
 
-    KeyDB.all(); // Returns: [{ username: "SpookyMan" }, ...and_all_other_keys]
+    Database.all(); // Returns: [{ username: "SpookyMan" }, ...and_all_other_keys]
 }
 
 doSomething();
@@ -31,9 +31,9 @@ doSomething();
 ## Typescript
 
 ```ts
-import { KeyDB } from "key.db";
+import { KVDB } from "kv.db";
 
-const config: KeyDB.Utils.Config = {
+const config: KVDB.Utils.Config = {
     dialect: "postgres", // Can be any dialect
     username: "someuser",
     password: "youshallnotpass",
@@ -41,16 +41,16 @@ const config: KeyDB.Utils.Config = {
     port: "8080"
 }
 
-const Database = KeyDB("database_name", config);
+const Database = KVDB("database_name", config);
 
 const doSomething = async () => {
-    KeyDB.set("user_12345", { username: "SpookyMan" }); // Returns: Spookyman
+    Database.set("user_12345", { username: "SpookyMan" }); // Returns: Spookyman
 
-    KeyDB.get("user_54321"); // Returns: { username: SomeUser }
+    Database.get("user_54321"); // Returns: { username: SomeUser }
 
-    KeyDB.delete("user_12345"); // Returns: 1 (no. of deleted keys)
+    Database.delete("user_12345"); // Returns: 1 (no. of deleted keys)
 
-    KeyDB.all(); // Returns: [{ username: "SpookyMan" }, ...and_all_other_keys]
+    Database.all(); // Returns: [{ username: "SpookyMan" }, ...and_all_other_keys]
 }
 
 doSomething();

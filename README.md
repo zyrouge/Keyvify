@@ -3,15 +3,15 @@
     src="./docs/src/.vuepress/public/assets/logo.png" onerror="this.src = '/assets/logo.png'" width="230px">
 </p>
 
-<h1 align="center">KeyDB</h1>
+<h1 align="center">KV.DB</h1>
 <p align="center">A simple promise based key-value database ORM</p>
 
-[![npm version](https://badgen.net/npm/v/key.db)](https://www.npmjs.com/package/key.db)
-[![npm downloads](https://badgen.net/npm/dm/key.db)](https://www.npmjs.com/package/key.db)
+[![npm version](https://badgen.net/npm/v/kv.db)](https://www.npmjs.com/package/kv.db)
+[![npm downloads](https://badgen.net/npm/dm/kv.db)](https://www.npmjs.com/package/kv.db)
 
 ## Installation
 ```console
-$ npm install key.db
+$ npm install kv.db
 ```
 
 and also a Dialect
@@ -28,7 +28,7 @@ $ npm i tedious # Microsoft SQL Server
 
 ## Resources
 
-* [Website](https://keydb.js.org)
-* [Documentation](https://keydb.js.org/docs)
+* [Website](https://kvdb.js.org)
+* [Documentation](https://kvdb.js.org/docs)
 * [Changelogs](./changelog.md)
-* [NPM](https://npmjs.com/key.db)
+* [NPM](https://npmjs.com/kv.db)

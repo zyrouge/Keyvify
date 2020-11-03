@@ -26,7 +26,7 @@ export interface SQLModel
  *
  * Example:
  * ```js
- * const Database = new KeyDB.SQL("database", config);
+ * const Database = new KVDB.SQL("database", config);
  * ```
  */
 export class SQL extends EventEmitter implements BaseDB {
