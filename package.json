@@ -1,6 +1,6 @@
 {
   "name": "key.db",
-  "version": "0.0.1-alpha",
+  "version": "0.0.1",
   "description": "A simple key-value pair ORM",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
