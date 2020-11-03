@@ -4,7 +4,7 @@
 </p>
 
 <h1 align="center">KeyDB</h1>
-<p align="center">A simple promise-base key-value database ORM</p>
+<p align="center">A simple promise based key-value database ORM</p>
 
 [![npm version](https://badgen.net/npm/v/key.db)](https://www.npmjs.com/package/key.db)
 [![npm downloads](https://badgen.net/npm/dm/key.db)](https://www.npmjs.com/package/key.db)
