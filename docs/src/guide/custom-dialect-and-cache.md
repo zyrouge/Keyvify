@@ -25,7 +25,7 @@ const Database = Keyvify("database_name", config);
 
 ```ts
 import { Keyvify } from "keyvify";
-import { CustomDatabase } from "./Custom";
+import { CustomDatabase, CustomCache } from "./Custom";
 
 const config: Keyvify.Utils.Config = {
     // Custom dialect
@@ -42,4 +42,4 @@ const config: Keyvify.Utils.Config = {
 const Database = Keyvify("database_name", config);
 ```
 
-It's that simple
+It's that simple!
