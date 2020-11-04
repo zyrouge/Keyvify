@@ -1,4 +1,4 @@
-import { BaseCache, isBaseDBConstructor, isBaseDBInstance, BaseDB, isBaseCacheConstructor, isBaseCacheInstance } from "../Managers/Base";
+import { BaseCache, isBaseDBConstructor, isBaseDBInstance, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, BaseDBConstructor } from "../Managers/Base";
 import { Sequelize, Dialect as SequelizeDialectsDefTypes } from "sequelize";
 import { Mongoose } from "mongoose";
 import BSQLConstructor, { Database as BSQLDatabse } from "better-sqlite3";
@@ -9,7 +9,7 @@ import { isString, isNumber, isFunction, isUndefined } from "lodash";
 export type SequelizeDialectsType = SequelizeDialectsDefTypes | Sequelize;
 export type MongoDBType = "mongodb" | Mongoose;
 export type BetterSQLiteType = "better-sqlite" | BSQLDatabse;
-export type SupportedDialectsType = SequelizeDialectsType | MongoDBType | BetterSQLiteType | BaseDB;
+export type SupportedDialectsType = SequelizeDialectsType | MongoDBType | BetterSQLiteType | BaseDB | BaseDBConstructor;
 
 /**
  * Keyvify Configuration (Common for all Dialects)
@@ -110,7 +110,7 @@ export function checkConfig(config: Config, checkDialect: boolean = true) {
     if (config.uri && !isString(config.uri)) throw new Err(...Constants.INVALID_URI);
     if (config.storage && !isString(config.storage)) throw new Err(...Constants.INVALID_STORAGE);
     if (checkDialect && !config.dialect) throw new Err(...Constants.NO_DIALECT);
-    if (checkDialect && !isSupportedDialect(config.dialect) && !isBaseDBConstructor(config.dialect) && !isBaseDBInstance(config.dialect)) throw new Err(...Constants.INVALID_DIALECT);
+    if (checkDialect && !isSupportedDialect(config.dialect)) throw new Err(...Constants.INVALID_DIALECT);
     if (!isUndefined(config.cache) && config.cache !== false && !isBaseCacheConstructor(config.cache) && !isBaseCacheInstance(config.cache)) throw new Err(...Constants.INVALID_CACHE_OPTION);
     if (config.serializer && !isFunction(config.serializer)) throw new Err(...Constants.INVALID_SERIALIZER);
     if (config.deserializer && !isFunction(config.deserializer)) throw new Err(...Constants.INVALID_DESERIALIZER);
@@ -120,14 +120,14 @@ export const SequelizeDialectsStrs = ["mysql", "postgres", "sqlite", "mariadb", 
 export const SupportedDialectsStrs = [...SequelizeDialectsStrs, "mongodb", "better-sqlite"];
 
 export function isSupportedDialect(dialect: any): dialect is SupportedDialectsType {
-    if (SupportedDialectsStrs.includes(dialect)) return true;
+    if (typeof dialect === "string" && SupportedDialectsStrs.includes(dialect)) return true;
     if (
         isSequelizeDialect(dialect) ||
         isMongoDialect(dialect) ||
-        isBetterSQLDialect(dialect) ||
-        isBaseCacheConstructor(dialect) ||
-        isBaseCacheInstance(dialect)
+        isBetterSQLDialect(dialect)
     ) return true;
+    if (typeof dialect === "function" && isBaseDBConstructor(dialect)) return true;
+    if (typeof dialect === "object" && isBaseDBInstance(dialect)) return true;
     return false;
 }
 
