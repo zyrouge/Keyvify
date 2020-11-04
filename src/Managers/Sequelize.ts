@@ -3,7 +3,7 @@ import Constants from "../Utils/Constants";
 import { Err } from "../Utils/Error";
 import { isString, isUndefined } from "lodash";
 import { Sequelize, Model, ModelCtor, DataTypes, Optional } from "sequelize";
-import { BaseCache, BaseDB, isBaseCache, Memory } from "./Base";
+import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
 import * as DataParser from "../Utils/DataParser";
@@ -80,7 +80,8 @@ export class SQL extends EventEmitter implements BaseDB {
         });
 
         if (!isUndefined(config.cache) && config.cache !== false) {
-            if (isBaseCache(config.dialect)) this.cache = new config.dialect();
+            if (isBaseCacheConstructor(config.cache)) this.cache = new config.cache();
+            else if (isBaseCacheInstance(config.cache)) this.cache = config.cache;
             else this.cache = new Memory();
         }
 

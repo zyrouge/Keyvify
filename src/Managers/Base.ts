@@ -6,7 +6,7 @@ export type Pair = {
     value: any;
 }
 
-interface BaseDB {
+export interface BaseDB {
     type: string;
     name: string;
     cache?: BaseCache;
@@ -58,33 +58,36 @@ interface BaseDB {
     on(event: "valueFetch", listener: (pairs: Pair[]) => void): this;
 }
 
-interface BaseDBConstructor {
+export interface BaseDBConstructor {
     new(name: string, config: Config): BaseDB;
 }
 
-declare const BaseDB: BaseDBConstructor;
-export { BaseDB };
-
-export function isBaseDB(dialect: any): dialect is BaseDB & BaseDBConstructor {
+export function isBaseDBConstructor(dialect: any): dialect is BaseDBConstructor {
     if (!dialect) return false;
     if (typeof dialect !== "function") return false;
     if (!dialect.constructor || !isFunction(dialect.constructor)) return false;
-    if (!dialect.prototype.connect || !isFunction(dialect.prototype.connect)) return false;
-    if (!dialect.prototype.disconnect || !isFunction(dialect.prototype.disconnect)) return false;
-    if (!dialect.prototype.get || !isFunction(dialect.prototype.get)) return false;
-    if (!dialect.prototype.set || !isFunction(dialect.prototype.set)) return false;
-    if (!dialect.prototype.delete || !isFunction(dialect.prototype.delete)) return false;
-    if (!dialect.prototype.all || !isFunction(dialect.prototype.all)) return false;
-    if (!dialect.prototype.entries || !isFunction(dialect.prototype.entries)) return false;
-    if (!dialect.prototype.empty || !isFunction(dialect.prototype.empty)) return false;
+    if (!isBaseDBInstance(dialect.prototype)) return false;
     return true;
 }
 
-interface BaseCacheConstructor {
+export function isBaseDBInstance(dialectProtos: any): dialectProtos is BaseDB {
+    if (!dialectProtos) return false;
+    if (typeof dialectProtos !== "object" && !Array.isArray(dialectProtos)) return false;
+    if (!dialectProtos.connect || !isFunction(dialectProtos.prototype.connect)) return false;
+    if (!dialectProtos.disconnect || !isFunction(dialectProtos.disconnect)) return false;
+    if (!dialectProtos.get || !isFunction(dialectProtos.get)) return false;
+    if (!dialectProtos.set || !isFunction(dialectProtos.set)) return false;
+    if (!dialectProtos.delete || !isFunction(dialectProtos.delete)) return false;
+    if (!dialectProtos.all || !isFunction(dialectProtos.all)) return false;
+    if (!dialectProtos.entries || !isFunction(dialectProtos.entries)) return false;
+    return true;
+}
+
+export interface BaseCacheConstructor {
     new(): BaseCache;
 }
 
-interface BaseCache {
+export interface BaseCache {
     get: (key: string) => string | undefined;
     set: (key: string, value: string) => string | undefined;
     delete: (key: string) => number;
@@ -92,18 +95,22 @@ interface BaseCache {
     empty: () => void;
 }
 
-declare const BaseCache: BaseCacheConstructor;
-export { BaseCache };
-
-export function isBaseCache(cache: any): cache is BaseCache & BaseCacheConstructor {
+export function isBaseCacheConstructor(cache: any): cache is BaseCacheConstructor {
     if (!cache) return false;
     if (typeof cache !== "function") return false;
     if (!cache.constructor || !isFunction(cache.constructor)) return false;
-    if (!cache.prototype.get || !isFunction(cache.prototype.get)) return false;
-    if (!cache.prototype.set || !isFunction(cache.prototype.set)) return false;
-    if (!cache.prototype.delete || !isFunction(cache.prototype.delete)) return false;
-    if (!cache.prototype.entries || !isFunction(cache.prototype.entries)) return false;
-    if (!cache.prototype.empty || !isFunction(cache.prototype.empty)) return false;
+    if (!isBaseCacheInstance(cache.prototype)) return false;
+    return true;
+}
+
+export function isBaseCacheInstance(cacheProtos: any): cacheProtos is BaseCache {
+    if (!cacheProtos) return false;
+    if (typeof cacheProtos !== "object" && !Array.isArray(cacheProtos)) return false;
+    if (!cacheProtos.get || !isFunction(cacheProtos.get)) return false;
+    if (!cacheProtos.set || !isFunction(cacheProtos.set)) return false;
+    if (!cacheProtos.delete || !isFunction(cacheProtos.delete)) return false;
+    if (!cacheProtos.entries || !isFunction(cacheProtos.entries)) return false;
+    if (!cacheProtos.empty || !isFunction(cacheProtos.empty)) return false;
     return true;
 }
 

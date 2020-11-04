@@ -2,7 +2,7 @@ import { Config, checkConfig, isBetterSQLDialect } from "../Utils/Configuration"
 import { Err } from "../Utils/Error";
 import { isString, isUndefined } from "lodash";
 import Sqlite from "better-sqlite3";
-import { BaseCache, BaseDB, isBaseCache, Memory, Pair } from "./Base";
+import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory, Pair } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
 import * as DataParser from "../Utils/DataParser";
@@ -47,7 +47,8 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         this.sqlite = config.dialect instanceof Sqlite ? config.dialect : new Sqlite(storagePath);
 
         if (!isUndefined(config.cache) && config.cache !== false) {
-            if (isBaseCache(config.cache)) this.cache = new config.cache();
+            if (isBaseCacheConstructor(config.cache)) this.cache = new config.cache();
+            else if (isBaseCacheInstance(config.cache)) this.cache = config.cache;
             else this.cache = new Memory();
         }
 

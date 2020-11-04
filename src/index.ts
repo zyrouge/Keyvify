@@ -42,8 +42,10 @@ export function Keyvify(name: string, config: ConfigUtils.Config) {
         return new BSQL.BetterSQL(name, config);
     } else if (ConfigUtils.isMongoDialect(config.dialect)) {
         return new MongoDBManager.Mongo(name, config);
-    } else if (BaseManager.isBaseDB(config.dialect)) {
+    } else if (BaseManager.isBaseDBConstructor(config.dialect)) {
         return new config.dialect(name, config);
+    } else if (BaseManager.isBaseDBInstance(config.dialect)) {
+        return config.dialect;
     } else throw new Err(...Constants.INVALID_DIALECT);
 }
 

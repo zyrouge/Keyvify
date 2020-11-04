@@ -1,7 +1,7 @@
 import { Config, checkConfig, isMongoDialect } from "../Utils/Configuration";
 import { isString, isUndefined } from "lodash";
 import * as Mongoose from "mongoose";
-import { BaseCache, BaseDB, isBaseCache, Memory } from "./Base";
+import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory } from "./Base";
 import { EventEmitter } from "events";
 import * as DataParser from "../Utils/DataParser";
 import { Err } from "../Utils/Error";
@@ -64,7 +64,8 @@ export class Mongo extends EventEmitter implements BaseDB {
         this.model = Mongoose.model<MongooseModel>(this.name, this.schema);
 
         if (!isUndefined(config.cache) && config.cache !== false) {
-            if (isBaseCache(config.dialect)) this.cache = new config.dialect();
+            if (isBaseCacheConstructor(config.cache)) this.cache = new config.cache();
+            else if (isBaseCacheInstance(config.cache)) this.cache = config.cache;
             else this.cache = new Memory();
         }
 

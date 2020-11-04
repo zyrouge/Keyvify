@@ -6,7 +6,7 @@
 const { Keyvify } = require("keyvify");
 
 const config = {
-    dialect: "postgres", // Can be any dialect
+    dialect: "postgres", // Can be any dialect name or instance
     username: "someuser",
     password: "youshallnotpass",
     host: "localhost",
@@ -34,7 +34,7 @@ doSomething();
 import { Keyvify } from "keyvify";
 
 const config: Keyvify.Utils.Config = {
-    dialect: "postgres", // Can be any dialect
+    dialect: "postgres", // Can be any dialect name or instance
     username: "someuser",
     password: "youshallnotpass",
     host: "localhost",

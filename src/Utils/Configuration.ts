@@ -1,4 +1,4 @@
-import { BaseCache, isBaseDB, BaseDB, isBaseCache } from "../Managers/Base";
+import { BaseCache, isBaseDBConstructor, isBaseDBInstance, BaseDB, isBaseCacheConstructor, isBaseCacheInstance } from "../Managers/Base";
 import { Sequelize, Dialect as SequelizeDialectsDefTypes } from "sequelize";
 import { Mongoose } from "mongoose";
 import BSQLConstructor, { Database as BSQLDatabse } from "better-sqlite3";
@@ -110,8 +110,8 @@ export function checkConfig(config: Config, checkDialect: boolean = true) {
     if (config.uri && !isString(config.uri)) throw new Err(...Constants.INVALID_URI);
     if (config.storage && !isString(config.storage)) throw new Err(...Constants.INVALID_STORAGE);
     if (checkDialect && !config.dialect) throw new Err(...Constants.NO_DIALECT);
-    if (checkDialect && (!isSupportedDialect(config.dialect) && !isBaseDB(config.dialect))) throw new Err(...Constants.INVALID_DIALECT);
-    if (!isUndefined(config.cache) && (config.cache !== false && !isBaseCache(config.cache))) throw new Err(...Constants.INVALID_CACHE_OPTION);
+    if (checkDialect && !isSupportedDialect(config.dialect) && !isBaseDBConstructor(config.dialect) && !isBaseDBInstance(config.dialect)) throw new Err(...Constants.INVALID_DIALECT);
+    if (!isUndefined(config.cache) && config.cache !== false && !isBaseCacheConstructor(config.cache) && !isBaseCacheInstance(config.cache)) throw new Err(...Constants.INVALID_CACHE_OPTION);
     if (config.serializer && !isFunction(config.serializer)) throw new Err(...Constants.INVALID_SERIALIZER);
     if (config.deserializer && !isFunction(config.deserializer)) throw new Err(...Constants.INVALID_DESERIALIZER);
 }
@@ -125,7 +125,8 @@ export function isSupportedDialect(dialect: any): dialect is SupportedDialectsTy
         isSequelizeDialect(dialect) ||
         isMongoDialect(dialect) ||
         isBetterSQLDialect(dialect) ||
-        isBaseDB(dialect)
+        isBaseCacheConstructor(dialect) ||
+        isBaseCacheInstance(dialect)
     ) return true;
     return false;
 }
