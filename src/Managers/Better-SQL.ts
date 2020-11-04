@@ -1,8 +1,8 @@
 import { Config, checkConfig, isBetterSQLDialect } from "../Utils/Configuration";
 import { Err } from "../Utils/Error";
-import { isString } from "lodash";
+import { isString, isUndefined } from "lodash";
 import Sqlite from "better-sqlite3";
-import { BaseDB, Memory, Pair } from "./Base";
+import { BaseCache, BaseDB, isBaseCache, Memory, Pair } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
 import * as DataParser from "../Utils/DataParser";
@@ -23,7 +23,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
     type = "better-sqlite";
     sqlite: Sqlite.Database;
 
-    cache?: Memory;
+    cache?: BaseCache;
     connected: boolean;
     serializer: (input: any) => string;
     deserializer: (input: string) => any;
@@ -46,8 +46,9 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         this.name = name;
         this.sqlite = config.dialect instanceof Sqlite ? config.dialect : new Sqlite(storagePath);
 
-        if (config.disableCache !== true) {
-            this.cache = new Memory();
+        if (!isUndefined(config.cache) && config.cache !== false) {
+            if (isBaseCache(config.cache)) this.cache = new config.cache();
+            else this.cache = new Memory();
         }
 
         this.connected = false;

@@ -1,6 +1,7 @@
 import { isString } from "lodash";
 import * as ConfigUtils from "./Utils/Configuration";
 import Constants from "./Utils/Constants";
+import * as BaseManager from "./Managers/Base";
 import * as SQLManager from "./Managers/Sequelize";
 import * as MongoDBManager from "./Managers/Mongoose";
 import * as BSQL from "./Managers/Better-SQL";
@@ -41,6 +42,8 @@ export function Keyvify(name: string, config: ConfigUtils.Config) {
         return new BSQL.BetterSQL(name, config);
     } else if (ConfigUtils.isMongoDialect(config.dialect)) {
         return new MongoDBManager.Mongo(name, config);
+    } else if (BaseManager.isBaseDB(config.dialect)) {
+        return new config.dialect(name, config);
     } else throw new Err(...Constants.INVALID_DIALECT);
 }
 

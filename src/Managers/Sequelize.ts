@@ -1,9 +1,9 @@
 import { Config, checkConfig, isSequelizeDialect } from "../Utils/Configuration";
 import Constants from "../Utils/Constants";
 import { Err } from "../Utils/Error";
-import { isString } from "lodash";
+import { isString, isUndefined } from "lodash";
 import { Sequelize, Model, ModelCtor, DataTypes, Optional } from "sequelize";
-import { BaseDB, Memory } from "./Base";
+import { BaseCache, BaseDB, isBaseCache, Memory } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
 import * as DataParser from "../Utils/DataParser";
@@ -35,7 +35,7 @@ export class SQL extends EventEmitter implements BaseDB {
     sequelize: Sequelize;
     model: ModelCtor<SQLModel>;
 
-    cache?: Memory;
+    cache?: BaseCache;
     connected: boolean;
     serializer: (input: any) => string;
     deserializer: (input: string) => any;
@@ -79,8 +79,9 @@ export class SQL extends EventEmitter implements BaseDB {
             }
         });
 
-        if (config.disableCache !== true) {
-            this.cache = new Memory();
+        if (!isUndefined(config.cache) && config.cache !== false) {
+            if (isBaseCache(config.dialect)) this.cache = new config.dialect();
+            else this.cache = new Memory();
         }
 
         this.connected = false;

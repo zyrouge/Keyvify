@@ -1,14 +1,15 @@
+import { BaseCache, isBaseDB, BaseDB, isBaseCache } from "../Managers/Base";
 import { Sequelize, Dialect as SequelizeDialectsDefTypes } from "sequelize";
 import { Mongoose } from "mongoose";
 import BSQLConstructor, { Database as BSQLDatabse } from "better-sqlite3";
 import { Err } from "./Error";
 import Constants from "./Constants";
-import { isString, isNumber, isFunction, isBoolean } from "lodash";
+import { isString, isNumber, isFunction, isUndefined } from "lodash";
 
 export type SequelizeDialectsType = SequelizeDialectsDefTypes | Sequelize;
 export type MongoDBType = "mongodb" | Mongoose;
 export type BetterSQLiteType = "better-sqlite" | BSQLDatabse;
-export type SupportedDialectsType = SequelizeDialectsType | MongoDBType | BetterSQLiteType;
+export type SupportedDialectsType = SequelizeDialectsType | MongoDBType | BetterSQLiteType | BaseDB;
 
 /**
  * Keyvify Configuration (Common for all Dialects)
@@ -87,7 +88,7 @@ export interface Config {
     /**
      * Whether to disable caching
      */
-    disableCache?: boolean;
+    cache?: BaseCache | false;
 
     /**
      * Data serializer
@@ -105,12 +106,12 @@ export function checkConfig(config: Config, checkDialect: boolean = true) {
     if (config.password && !isString(config.password)) throw new Err(...Constants.INVALID_PASSWORD);
     if (config.database && !isString(config.database)) throw new Err(...Constants.INVALID_DATABASE);
     if (config.host && !isString(config.host)) throw new Err(...Constants.INVALID_HOST);
-    if (config.port !== undefined && !isNumber(config.uri)) throw new Err(...Constants.INVALID_PORT);
+    if (!isUndefined(config.port) && !isNumber(config.uri)) throw new Err(...Constants.INVALID_PORT);
     if (config.uri && !isString(config.uri)) throw new Err(...Constants.INVALID_URI);
     if (config.storage && !isString(config.storage)) throw new Err(...Constants.INVALID_STORAGE);
     if (checkDialect && !config.dialect) throw new Err(...Constants.NO_DIALECT);
-    if (checkDialect && !isSupportedDialect(config.dialect)) throw new Err(...Constants.INVALID_DIALECT);
-    if (config.disableCache !== undefined && !isBoolean(config.disableCache)) throw new Err(...Constants.INVALID_CACHE_OPTION);
+    if (checkDialect && (!isSupportedDialect(config.dialect) && !isBaseDB(config.dialect))) throw new Err(...Constants.INVALID_DIALECT);
+    if (!isUndefined(config.cache) && (config.cache !== false && !isBaseCache(config.cache))) throw new Err(...Constants.INVALID_CACHE_OPTION);
     if (config.serializer && !isFunction(config.serializer)) throw new Err(...Constants.INVALID_SERIALIZER);
     if (config.deserializer && !isFunction(config.deserializer)) throw new Err(...Constants.INVALID_DESERIALIZER);
 }
@@ -123,7 +124,8 @@ export function isSupportedDialect(dialect: any): dialect is SupportedDialectsTy
     if (
         isSequelizeDialect(dialect) ||
         isMongoDialect(dialect) ||
-        isBetterSQLDialect(dialect)
+        isBetterSQLDialect(dialect) ||
+        isBaseDB(dialect)
     ) return true;
     return false;
 }

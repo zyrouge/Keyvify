@@ -1,7 +1,7 @@
 import { Config, checkConfig, isMongoDialect } from "../Utils/Configuration";
-import { isString } from "lodash";
+import { isString, isUndefined } from "lodash";
 import * as Mongoose from "mongoose";
-import { BaseDB, Memory } from "./Base";
+import { BaseCache, BaseDB, isBaseCache, Memory } from "./Base";
 import { EventEmitter } from "events";
 import * as DataParser from "../Utils/DataParser";
 import { Err } from "../Utils/Error";
@@ -30,7 +30,7 @@ export class Mongo extends EventEmitter implements BaseDB {
     schema: Mongoose.Schema;
     model: Mongoose.Model<MongooseModel>;
 
-    cache?: Memory;
+    cache?: BaseCache;
     connected: boolean;
     serializer: (input: any) => string;
     deserializer: (input: string) => any;
@@ -63,8 +63,9 @@ export class Mongo extends EventEmitter implements BaseDB {
 
         this.model = Mongoose.model<MongooseModel>(this.name, this.schema);
 
-        if (config.disableCache !== true) {
-            this.cache = new Memory();
+        if (!isUndefined(config.cache) && config.cache !== false) {
+            if (isBaseCache(config.dialect)) this.cache = new config.dialect();
+            else this.cache = new Memory();
         }
 
         this.connected = false;
