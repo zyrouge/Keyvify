@@ -66,7 +66,8 @@ export class SQL extends EventEmitter implements BaseDB {
             dialect: config.dialect,
             storage: storagePath
                 ? `${storagePath}${storagePath.endsWith(".sqlite") ? "" : ".sqlite"}`
-                : undefined
+                : undefined,
+            logging: false
         });
 
         this.model = this.sequelize.define<SQLModel>(this.name, {
@@ -74,10 +75,7 @@ export class SQL extends EventEmitter implements BaseDB {
                 primaryKey: true,
                 type: DataTypes.STRING
             },
-            value: {
-                type: DataTypes.TEXT,
-                allowNull: false
-            }
+            value: DataTypes.TEXT
         });
 
         if (!isUndefined(config.cache) && config.cache !== false) {
@@ -119,10 +117,13 @@ export class SQL extends EventEmitter implements BaseDB {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
 
-        const cachev = this.cache?.get(key);
-        const mod = cachev || (await this.model.findByPk(key))?.getDataValue("value") || undefined;
+        let rval = this.cache?.get(key);
+        if (isUndefined(rval)) {
+            const mod = await this.model.findOne({ where: { key } });
+            rval = mod?.get().value;
+        }
 
-        const val = mod ? this.deserializer(mod) : undefined;
+        const val = this.deserializer(`${rval}`);
         this.emit("valueGet", { key, value: val });
         return val;
     }
@@ -149,11 +150,11 @@ export class SQL extends EventEmitter implements BaseDB {
 
         const [mod, isCreated] = await this.model.findOrCreate({ where: { key } });
         if (!isCreated) {
-            const __v = mod.getDataValue("value");
+            const __v = mod.get().value;
             oldVal = __v ? this.deserializer(__v) : undefined;
-            await mod.update("value", serval);
         }
 
+        await this.model.update({ value: serval }, { where: { key } });
         this.cache?.set(key, serval);
         const val = this.deserializer(serval);
         oldVal
@@ -176,18 +177,13 @@ export class SQL extends EventEmitter implements BaseDB {
 
     async all() {
         const allMods = await this.model.findAll();
+        this.cache?.empty();
         const allKeys = allMods.map(m => {
-            const key = m.getDataValue("key");
-            const rvalue = m.getDataValue("value");
-            const value = rvalue ? this.deserializer(rvalue) : undefined;
-            return { key, value }
+            const mod = m.get();
+            this.cache?.set(mod.key, mod.value);
+            const value = this.deserializer(`${mod.value}`);
+            return { key: mod.key, value }
         });
-
-        if (this.cache) {
-            allKeys.forEach(({ key, value }) => this.cache?.set(key, value));
-            const cachedKeys = await this.all();
-            cachedKeys.forEach(({ key }) => this.cache?.delete(key));
-        }
 
         this.emit("valueFetch", allKeys);
         return allKeys;

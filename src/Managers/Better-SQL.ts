@@ -67,7 +67,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
             this.sqlite.prepare(`
                 CREATE TABLE ${this.name} (
                     key text NOT NULL PRIMARY KEY,
-                    value text NOT NULL
+                    value text
                 );
             `).run();
 

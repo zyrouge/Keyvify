@@ -5,10 +5,8 @@ const database = Keyvify("database", {
     dialect: "sqlite"
 });
 
-database.on("connect", () => {
-
-});
-
-describe("Checking Database", () => {
-    expect(database.type).toBe("sqlite");
+describe("SQLite test", () => {
+    test("Checking type", () => {
+        expect(database.type).toBe("sqlite");
+    });
 });

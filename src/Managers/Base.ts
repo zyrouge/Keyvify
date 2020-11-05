@@ -139,7 +139,7 @@ export class Memory implements BaseCache {
     }
 
     entries() {
-        return Object.entries(this.base).map(([key, value]) => ({ key, value }));
+        return [...this.base.entries()].map(([key, value]) => ({ key, value }));
     }
 
     empty() {
