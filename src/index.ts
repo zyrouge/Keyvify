@@ -1,5 +1,6 @@
 import { isString } from "lodash";
 import * as ConfigUtils from "./Utils/Configuration";
+import * as DBUtils from "./Utils/DBUtils";
 import Constants from "./Utils/Constants";
 import * as BaseManager from "./Managers/Base";
 import * as SQLManager from "./Managers/Sequelize";
@@ -53,7 +54,12 @@ export module Keyvify {
     export import SQL = SQLManager.SQL;
     export import MongoDB = MongoDBManager.Mongo;
     export import BetterSQL = BSQL.BetterSQL;
-    export import Utils = ConfigUtils;
+    export const Utils = {
+        Configuration: ConfigUtils,
+        Constants: Constants,
+        Error: Err,
+        Helpers: DBUtils
+    };
 }
 
 export default Keyvify;

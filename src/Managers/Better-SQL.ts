@@ -1,12 +1,13 @@
 import { Config, checkConfig, isBetterSQLDialect } from "../Utils/Configuration";
 import { Err } from "../Utils/Error";
-import { isString, isUndefined } from "lodash";
+import { isArray, isObject, isString, isUndefined } from "lodash";
 import Sqlite from "better-sqlite3";
 import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory, Pair } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
 import * as DataParser from "../Utils/DataParser";
 import Constants from "../Utils/Constants";
+import { KeyParams, isKeyNdNotation, DotNotations } from "../Utils/DBUtils";
 
 /**
  * The Better-SQL DB Client
@@ -80,7 +81,18 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         this.emit("disconnect");
     }
 
-    async get(key: string) {
+    async get(key: KeyParams) {
+        if (!isKeyNdNotation(key)) throw new Err(...Constants.INVALID_PARAMETERS);
+        if (isString(key)) return this.getKey(key);
+        if (isArray(key)) {
+            const [vKey, dotNot] = key;
+            const val = await this.getKey(vKey);
+            if (isObject(val)) return DotNotations.get(val, dotNot);
+            else throw new Err(...Constants.VALUE_NOT_OBJECT);
+        }
+    }
+
+    async getKey(key: string) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
 
@@ -95,7 +107,19 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         return val;
     }
 
-    async set(key: string, value: any) {
+    async set(key: KeyParams, value: any) {
+        if (!isKeyNdNotation(key)) throw new Err(...Constants.INVALID_PARAMETERS);
+        if (isString(key)) return this.setKey(key, value);
+        if (isArray(key)) {
+            const [vKey, dotNot] = key;
+            const val = await this.getKey(vKey);
+            if (!isObject(val)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            const newVal = DotNotations.set(val, dotNot, value);
+            return this.setKey(vKey, newVal);
+        }
+    }
+
+    async setKey(key: string, value: any) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
         if (!value) throw new Err(...Constants.NO_VALUE);
@@ -103,7 +127,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         const serval = this.serializer(value);
         let oldVal: any;
 
-        const isThere = this.get(key);
+        const isThere = this.getKey(key);
         if (!isThere) {
             oldVal = this.deserializer(isThere);
             this.sqlite.prepare(`UPDATE ${this.name} SET value = ? WHERE key = ?;`).run(serval, key);

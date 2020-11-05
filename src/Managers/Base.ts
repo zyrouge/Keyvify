@@ -1,5 +1,6 @@
 import { isFunction } from "lodash";
 import { Config } from "../Utils/Configuration";
+import { KeyParams } from "../Utils/DBUtils";
 
 export type Pair = {
     key: string;
@@ -14,10 +15,12 @@ export interface BaseDB {
 
     connect: () => Promise<void>;
     disconnect: () => Promise<void>;
+    serializer: (input: any) => string;
+    deserializer: (input: string) => any;
 
-    get: (key: any) => Promise<any>;
-    set: (key: any, value: any) => Promise<any>;
-    delete: (key: any) => Promise<number>;
+    get: (key: KeyParams) => Promise<any>;
+    set: (key: KeyParams, value: any) => Promise<any>;
+    delete: (key: string) => Promise<number>;
     all: () => Promise<Pair[]>;
     entries: () => Pair[];
     // empty: () => void;

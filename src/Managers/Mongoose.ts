@@ -1,11 +1,12 @@
 import { Config, checkConfig, isMongoDialect } from "../Utils/Configuration";
-import { isString, isUndefined } from "lodash";
+import { isObject, isArray, isString, isUndefined } from "lodash";
 import * as Mongoose from "mongoose";
 import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory } from "./Base";
 import { EventEmitter } from "events";
 import * as DataParser from "../Utils/DataParser";
 import { Err } from "../Utils/Error";
 import Constants from "../Utils/Constants";
+import { isKeyNdNotation, KeyParams, DotNotations } from "../Utils/DBUtils";
 
 export interface MongooseModel extends Mongoose.Document {
     key: string;
@@ -89,7 +90,18 @@ export class Mongo extends EventEmitter implements BaseDB {
         this.emit("disconnect");
     }
 
-    async get(key: string) {
+    async get(key: KeyParams) {
+        if (!isKeyNdNotation(key)) throw new Err(...Constants.INVALID_PARAMETERS);
+        if (isString(key)) return this.getKey(key);
+        if (isArray(key)) {
+            const [vKey, dotNot] = key;
+            const val = await this.getKey(vKey);
+            if (isObject(val)) return DotNotations.get(val, dotNot);
+            else throw new Err(...Constants.VALUE_NOT_OBJECT);
+        }
+    }
+
+    async getKey(key: string) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
 
@@ -100,7 +112,19 @@ export class Mongo extends EventEmitter implements BaseDB {
         return val;
     }
 
-    async set(key: string, value: any) {
+    async set(key: KeyParams, value: any) {
+        if (!isKeyNdNotation(key)) throw new Err(...Constants.INVALID_PARAMETERS);
+        if (isString(key)) return this.setKey(key, value);
+        if (isArray(key)) {
+            const [vKey, dotNot] = key;
+            const val = await this.getKey(vKey);
+            if (!isObject(val)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            const newVal = DotNotations.set(val, dotNot, value);
+            return this.setKey(vKey, newVal);
+        }
+    }
+
+    async setKey(key: string, value: any) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
         if (!value) throw new Err(...Constants.NO_VALUE);
