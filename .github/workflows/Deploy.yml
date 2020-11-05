@@ -44,7 +44,7 @@ jobs:
               const path = require("path");
 
               const pkg = JSON.parse(fs.readFileSync("./package.json"));
-              fs.writeFileSync("./docs/CNAME", pkg.website.replace("https://", ""));
+              fs.writeFileSync("./docs/CNAME", pkg.homepage.replace("https://", ""));
 
               const all = fs.readdirSync(".");
               all.forEach(f => {
