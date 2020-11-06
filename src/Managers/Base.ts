@@ -26,6 +26,9 @@ export interface BaseDB extends EventEmitter {
     all(): Promise<Pair[]>;
     entries(): Pair[];
 
+    
+    on(event: string, listener: Function): this;
+    
     /**
      * Emitted on connect
      */
