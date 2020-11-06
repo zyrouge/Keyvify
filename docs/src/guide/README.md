@@ -9,12 +9,13 @@ $ npm install keyvify
 Dialect | NPM Command
 --- | ---
 MySQL | `$ npm install mysql2`
-Postgres |`$ npm install pg pg-hstore`
-SQLite |`$ npm install sqlite3`
-Better SQLite |`$ npm install better-sqlite3`
-MongoDB |`$ npm install mongoose`
-MariaDB |`$ npm install mariadb`
-MSSQL |`$ npm install tedious`
+Postgres | `$ npm install pg pg-hstore`
+SQLite | `$ npm install sqlite3`
+Better SQLite | `$ npm install better-sqlite3`
+MongoDB | `$ npm install mongoose`
+MariaDB | `$ npm install mariadb`
+MSSQL | `$ npm install tedious`
+Custom | Check their corresponding docs
 
 # Importing
 

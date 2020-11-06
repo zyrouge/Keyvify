@@ -5,5 +5,5 @@ export function serialize(input: any) {
 }
 
 export function deserialize(input: string) {
-    return eval(`(${input})`);
+    return eval("(" + input + ")");
 }
