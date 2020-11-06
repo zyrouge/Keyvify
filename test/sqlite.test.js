@@ -1,25 +1,43 @@
 const { Keyvify } = require("../lib");
 const path = require("path");
+const { MongoMemoryServer } = require("mongodb-memory-server");
 
-const dialects = ["sqlite", "better-sqlite"];
+const memMongoServer = new MongoMemoryServer();
+const dialects = [
+    {
+        storage: path.join(__dirname, "db", "sqldb.sqlite"),
+        dialect: "sqlite",
+        toString() { return "SQLite" }
+    }, {
+        storage: path.join(__dirname, "db", "bsqldb.sqlite"),
+        dialect: "better-sqlite",
+        toString() { return "Better SQLite" }
+    }, {
+        dialect: "mongodb",
+        uri: "nouri",
+        toString() { return "MongoDB" }
+    }
+];
 
-describe.each(dialects)("%s test", (dialect) => {
+describe.each(dialects)("%s", (config) => {
 
     const name = `testing_database`;
-    const database = Keyvify(name, {
-        storage: path.join(__dirname, "db", dialect + "db.sqlite"),
-        dialect: dialect
-    });
+    const database = Keyvify(name, config);
 
     test("Checking name", () => {
         expect(database.name).toBe(name);
     });
 
-    test("Checking type", async () => {
-        expect(database.type).toBe(dialect);
+    test("Checking type", () => {
+        expect(database.type).toBe(config.dialect);
     });
 
     test("Connect to database", async () => {
+        if (database.type === "mongodb" && "uri" in database) {
+            const uri = await memMongoServer.getUri();
+            database.uri = uri;
+        } // testing purpose
+
         await database.connect();
         expect(database.connected).toBe(true);
     });
@@ -92,5 +110,6 @@ describe.each(dialects)("%s test", (dialect) => {
         const val = await database.disconnect();
         expect(val).toBe(undefined);
         expect(database.connected).toBe(false);
+        if (database.type === "mongodb") await memMongoServer.stop();
     });
 });
