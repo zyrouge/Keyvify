@@ -1,13 +1,13 @@
 import { BaseCache, isBaseDBConstructor, isBaseDBInstance, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, BaseDBConstructor } from "../Managers/Base";
 import { Sequelize, Dialect as SequelizeDialectsDefTypes } from "sequelize";
-import { Mongoose } from "mongoose";
 import BSQLConstructor, { Database as BSQLDatabse } from "better-sqlite3";
 import { Err } from "./Error";
 import Constants from "./Constants";
 import { isString, isNumber, isFunction, isUndefined } from "lodash";
+import * as DBUtils from "./DBUtils";
 
 export type SequelizeDialectsType = SequelizeDialectsDefTypes | Sequelize;
-export type MongoDBType = "mongodb" | Mongoose;
+export type MongoDBType = "mongodb";
 export type BetterSQLiteType = "better-sqlite" | BSQLDatabse;
 export type SupportedDialectsType = SequelizeDialectsType | MongoDBType | BetterSQLiteType | BaseDB | BaseDBConstructor;
 
@@ -104,7 +104,7 @@ export interface Config {
 export function checkConfig(config: Config, checkDialect: boolean = true) {
     if (config.username && !isString(config.username)) throw new Err(...Constants.INVALID_USERNAME);
     if (config.password && !isString(config.password)) throw new Err(...Constants.INVALID_PASSWORD);
-    if (config.database && !isString(config.database)) throw new Err(...Constants.INVALID_DATABASE);
+    if (config.database && (!isString(config.database) || !DBUtils.isValidLiteral(config.database))) throw new Err(...Constants.INVALID_DATABASE);
     if (config.host && !isString(config.host)) throw new Err(...Constants.INVALID_HOST);
     if (!isUndefined(config.port) && !isNumber(config.uri)) throw new Err(...Constants.INVALID_PORT);
     if (config.uri && !isString(config.uri)) throw new Err(...Constants.INVALID_URI);
@@ -139,7 +139,6 @@ export function isSequelizeDialect(dialect: any): dialect is SequelizeDialectsTy
 
 export function isMongoDialect(dialect: any): dialect is MongoDBType {
     if (dialect === "mongodb") return true;
-    if (dialect instanceof Mongoose) return true;
     return false;
 }
 

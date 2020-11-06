@@ -33,7 +33,7 @@ import { Err } from "./Utils/Error";
  */
 export function Keyvify(name: string, config: ConfigUtils.Config) {
     if (!name) throw new Err(...Constants.NO_DB_NAME);
-    if (!isString(name)) throw new Err(...Constants.INVALID_DB_NAME);
+    if (!isString(name) || !DBUtils.isValidLiteral(name)) throw new Err(...Constants.INVALID_DB_NAME);
     if (!config) throw new Err(...Constants.NO_CONFIG);
     ConfigUtils.checkConfig(config);
 
@@ -54,12 +54,13 @@ export module Keyvify {
     export import SQL = SQLManager.SQL;
     export import MongoDB = MongoDBManager.Mongo;
     export import BetterSQL = BSQL.BetterSQL;
-    export const Utils = {
-        Configuration: ConfigUtils,
-        Constants: Constants,
-        Error: Err,
-        Helpers: DBUtils
-    };
+    export import Configuration = ConfigUtils;
+    export import Helpers = DBUtils;
+}
+
+export const Utils = {
+    Constants,
+    Error: Err
 }
 
 export default Keyvify;

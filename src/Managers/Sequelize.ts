@@ -7,7 +7,8 @@ import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory 
 import { EventEmitter } from "events";
 import path from "path";
 import * as DataParser from "../Utils/DataParser";
-import { isKeyNdNotation, KeyParams, DotNotations } from "../Utils/DBUtils";
+import { isKeyNdNotation, KeyParams, DotNotations, isValidLiteral } from "../Utils/DBUtils";
+import fs from "fs-extra";
 
 export interface SQLModelAttr {
     key: string;
@@ -45,7 +46,7 @@ export class SQL extends EventEmitter implements BaseDB {
         super();
 
         if (!name) throw new Err(...Constants.NO_DB_NAME);
-        if (!isString(name)) throw new Err(...Constants.INVALID_DB_NAME);
+        if (!isString(name) || !isValidLiteral(name)) throw new Err(...Constants.INVALID_DB_NAME);
         if (!config) throw new Err(...Constants.NO_CONFIG);
         checkConfig(config, false);
         if (!isSequelizeDialect(config.dialect)) throw new Err(...Constants.INVALID_SQL_DIALECT);
@@ -54,6 +55,7 @@ export class SQL extends EventEmitter implements BaseDB {
         const storagePath = config.storage && !path.isAbsolute(config.storage)
             ? path.join(process.cwd(), config.storage)
             : undefined;
+        if (storagePath) fs.ensureFileSync(storagePath);
 
         this.name = name;
         this.type = config.dialect instanceof Sequelize ? config.dialect.getDialect() : config.dialect;
@@ -78,7 +80,7 @@ export class SQL extends EventEmitter implements BaseDB {
             value: DataTypes.TEXT
         });
 
-        if (!isUndefined(config.cache) && config.cache !== false) {
+        if (config.cache !== false) {
             if (isBaseCacheConstructor(config.cache)) this.cache = new config.cache();
             else if (isBaseCacheInstance(config.cache)) this.cache = config.cache;
             else this.cache = new Memory();
@@ -99,6 +101,7 @@ export class SQL extends EventEmitter implements BaseDB {
 
     async disconnect() {
         await this.sequelize.close();
+        this.connected = false;
         this.emit("disconnect");
     }
 
@@ -108,7 +111,7 @@ export class SQL extends EventEmitter implements BaseDB {
         if (isArray(key)) {
             const [vKey, dotNot] = key;
             const val = await this.getKey(vKey);
-            if (isObject(val)) return DotNotations.get(val, dotNot);
+            if (isObject(val)) return DotNotations.getKey(val, dotNot);
             else throw new Err(...Constants.VALUE_NOT_OBJECT);
         }
     }
@@ -135,7 +138,7 @@ export class SQL extends EventEmitter implements BaseDB {
             const [vKey, dotNot] = key;
             const val = await this.getKey(vKey);
             if (!isObject(val)) throw new Err(...Constants.VALUE_NOT_OBJECT);
-            const newVal = DotNotations.set(val, dotNot, value);
+            const newVal = DotNotations.setKey(val, dotNot, value);
             return this.setKey(vKey, newVal);
         }
     }
@@ -151,7 +154,7 @@ export class SQL extends EventEmitter implements BaseDB {
         const [mod, isCreated] = await this.model.findOrCreate({ where: { key } });
         if (!isCreated) {
             const __v = mod.get().value;
-            oldVal = __v ? this.deserializer(__v) : undefined;
+            oldVal = this.deserializer(`${__v}`);
         }
 
         await this.model.update({ value: serval }, { where: { key } });
@@ -172,6 +175,12 @@ export class SQL extends EventEmitter implements BaseDB {
         });
         this.cache?.delete(key);
         this.emit("valueDelete", key, totalDeleted);
+        return totalDeleted;
+    }
+
+    async truncate() {
+        const totalDeleted = await this.model.destroy({ truncate: true });
+        this.emit("truncate", totalDeleted);
         return totalDeleted;
     }
 

@@ -1,3 +1,4 @@
+import { EventEmitter } from "events";
 import { isFunction } from "lodash";
 import { Config } from "../Utils/Configuration";
 import { KeyParams } from "../Utils/DBUtils";
@@ -7,7 +8,7 @@ export type Pair = {
     value: any;
 }
 
-export interface BaseDB {
+export interface BaseDB extends EventEmitter {
     type: string;
     name: string;
     cache?: BaseCache;
@@ -21,9 +22,9 @@ export interface BaseDB {
     get: (key: KeyParams) => Promise<any>;
     set: (key: KeyParams, value: any) => Promise<any>;
     delete: (key: string) => Promise<number>;
+    truncate: () => Promise<number>;
     all: () => Promise<Pair[]>;
     entries: () => Pair[];
-    // empty: () => void;
 
     /**
      * Emitted on connect
@@ -59,6 +60,11 @@ export interface BaseDB {
      * Emitted when values are fetched
      */
     on(event: "valueFetch", listener: (pairs: Pair[]) => void): this;
+
+    /**
+     * Emitted when all values are deleted
+     */
+    on(event: "truncate", listener: (deletedCount: number) => void): this;
 }
 
 export interface BaseDBConstructor {

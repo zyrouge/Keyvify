@@ -1,4 +1,4 @@
-import _, { isArray, isBoolean, isString } from "lodash";
+import { isArray, isBoolean, isString, get as ObjectGet, set as ObjectSet } from "lodash";
 import { BaseDB, isBaseDBInstance } from "../Managers/Base";
 import Constants from "./Constants";
 import fs from "fs-extra";
@@ -9,8 +9,8 @@ export type KeyNdNotation = [string, string];
 export type KeyParams = string | KeyNdNotation;
 
 export const DotNotations = {
-    get: _.get,
-    set: _.set
+    getKey: ObjectGet,
+    setKey: ObjectSet
 }
 
 export function isKeyNdNotation(key: any): key is KeyNdNotation {
@@ -53,4 +53,15 @@ export async function exportData(database: BaseDB, file: string) {
     const unsdata = await database.all();
     const data = unsdata.map(d => ({ key: d.key, value: database.serializer(d.value) }));
     fs.writeFile(pth, JSON.stringify(data));
+}
+
+const alphabets = new Array(26).fill(null).map((n, i) => String.fromCharCode(65 + i)).join("");
+const valid = [...alphabets, ...alphabets.toLowerCase(), ...new Array(10).fill(null).map((n, i) => i), "_"];
+
+export function isValidLiteral(str: string) {
+    return [...str].filter(s => !valid.includes(s)).length === 0;
+}
+
+export function normalize(str: string) {
+    return [...str].map(s => valid.includes(s) ? s : "_").join("");
 }

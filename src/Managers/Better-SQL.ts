@@ -7,7 +7,8 @@ import { EventEmitter } from "events";
 import path from "path";
 import * as DataParser from "../Utils/DataParser";
 import Constants from "../Utils/Constants";
-import { KeyParams, isKeyNdNotation, DotNotations } from "../Utils/DBUtils";
+import { KeyParams, isKeyNdNotation, DotNotations, isValidLiteral } from "../Utils/DBUtils";
+import fs from "fs-extra";
 
 /**
  * The Better-SQL DB Client
@@ -33,7 +34,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         super();
 
         if (!name) throw new Err(...Constants.NO_DB_NAME);
-        if (!isString(name)) throw new Err(...Constants.INVALID_DB_NAME);
+        if (!isString(name) || !isValidLiteral(name)) throw new Err(...Constants.INVALID_DB_NAME);
         if (!config) throw new Err(...Constants.NO_CONFIG);
         checkConfig(config, false);
         if (!isBetterSQLDialect(config.dialect)) throw new Err(...Constants.INVALID_DIALECT);
@@ -43,11 +44,12 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         const storagePath = path.isAbsolute(config.storage)
             ? config.storage
             : path.join(process.cwd(), config.storage);
-
+        fs.ensureFileSync(storagePath);
+        
         this.name = name;
         this.sqlite = config.dialect instanceof Sqlite ? config.dialect : new Sqlite(storagePath);
 
-        if (!isUndefined(config.cache) && config.cache !== false) {
+        if (config.cache !== false) {
             if (isBaseCacheConstructor(config.cache)) this.cache = new config.cache();
             else if (isBaseCacheInstance(config.cache)) this.cache = config.cache;
             else this.cache = new Memory();
@@ -74,10 +76,14 @@ export class BetterSQL extends EventEmitter implements BaseDB {
             this.sqlite.pragma("synchronous = 1;");
             this.sqlite.pragma("journal_mode = WAL;");
         }
+
+        this.connected = true;
+        this.emit("connect");
     }
 
     async disconnect() {
         this.sqlite.close();
+        this.connected = false;
         this.emit("disconnect");
     }
 
@@ -87,7 +93,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         if (isArray(key)) {
             const [vKey, dotNot] = key;
             const val = await this.getKey(vKey);
-            if (isObject(val)) return DotNotations.get(val, dotNot);
+            if (isObject(val)) return DotNotations.getKey(val, dotNot);
             else throw new Err(...Constants.VALUE_NOT_OBJECT);
         }
     }
@@ -102,7 +108,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
             if (raw && raw.value) rval = raw.value;
         }
 
-        const val = rval ? this.deserializer(rval) : undefined;
+        const val = this.deserializer(`${rval}`);
         this.emit("valueGet", { key, value: val });
         return val;
     }
@@ -114,7 +120,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
             const [vKey, dotNot] = key;
             const val = await this.getKey(vKey);
             if (!isObject(val)) throw new Err(...Constants.VALUE_NOT_OBJECT);
-            const newVal = DotNotations.set(val, dotNot, value);
+            const newVal = DotNotations.setKey(val, dotNot, value);
             return this.setKey(vKey, newVal);
         }
     }
@@ -127,8 +133,8 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         const serval = this.serializer(value);
         let oldVal: any;
 
-        const isThere = this.getKey(key);
-        if (!isThere) {
+        const isThere = await this.getKey(key);
+        if (isThere) {
             oldVal = this.deserializer(isThere);
             this.sqlite.prepare(`UPDATE ${this.name} SET value = ? WHERE key = ?;`).run(serval, key);
         } else {
@@ -153,20 +159,22 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         return totalDeleted;
     }
 
+    async truncate() {
+        const { changes: totalDeleted } = this.sqlite.prepare(`DELETE FROM ${this.name}`).run();
+        this.emit("truncate", totalDeleted);
+        return totalDeleted;
+    }
+
     async all() {
         const allMods = this.sqlite.prepare(`SELECT * FROM ${this.name}`).all();
-        const allKeys: Pair[] = allMods.map(m => {
+        this.cache?.empty();
+        const allKeys = allMods.map((m: Pair) => {
             const key = m.key;
             const rvalue = m.value;
-            const value = rvalue ? this.deserializer(rvalue) : undefined;
+            const value = this.deserializer(`${rvalue}`);
+            this.cache?.set(key, m.value);
             return { key, value }
         });
-
-        if (this.cache) {
-            allKeys.forEach(({ key, value }) => this.cache?.set(key, value));
-            const cachedKeys = await this.all();
-            cachedKeys.forEach(({ key }) => this.cache?.delete(key));
-        }
 
         this.emit("valueFetch", allKeys);
         return allKeys;
