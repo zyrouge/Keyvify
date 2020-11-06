@@ -14,17 +14,17 @@ export interface BaseDB extends EventEmitter {
     cache?: BaseCache;
     connected: boolean;
 
-    connect: () => Promise<void>;
-    disconnect: () => Promise<void>;
+    connect(): Promise<void>;
+    disconnect(): Promise<void>;
     serializer: (input: any) => string;
     deserializer: (input: string) => any;
 
-    get: (key: KeyParams) => Promise<any>;
-    set: (key: KeyParams, value: any) => Promise<any>;
-    delete: (key: string) => Promise<number>;
-    truncate: () => Promise<number>;
-    all: () => Promise<Pair[]>;
-    entries: () => Pair[];
+    get(key: KeyParams): Promise<any>;
+    set(key: KeyParams, value: any): Promise<any>;
+    delete(key: string): Promise<number>;
+    truncate(): Promise<number>;
+    all(): Promise<Pair[]>;
+    entries(): Pair[];
 
     /**
      * Emitted on connect
@@ -68,7 +68,7 @@ export interface BaseDB extends EventEmitter {
 }
 
 export interface BaseDBConstructor {
-    new(name: string, config: Config): BaseDB;
+    new (name: string, config: Config): BaseDB;
 }
 
 export function isBaseDBConstructor(dialect: any): dialect is BaseDBConstructor {
