@@ -115,6 +115,5 @@ Click [here](./examples) for more examples
 
 - [Website](https://keyvify.js.org)
 - [Documentation](https://keyvify.js.org/docs)
-- [Changelogs](./changelog.md)
 - [NPM](https://npmjs.com/keyvify)
 - [Discord](https://zyrouge.gq/discord)
