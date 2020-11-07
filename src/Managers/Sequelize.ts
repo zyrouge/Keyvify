@@ -3,7 +3,7 @@ import Constants from "../Utils/Constants";
 import { Err } from "../Utils/Error";
 import { isArray, isObject, isString, isUndefined } from "lodash";
 import { Sequelize, Model, ModelCtor, DataTypes, Optional } from "sequelize";
-import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory } from "./Base";
+import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory, Pair } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
 import * as DataParser from "../Utils/DataParser";
@@ -15,7 +15,7 @@ export interface SQLModelAttr {
     value: string;
 }
 
-interface SQLCreationAttributes extends Optional<SQLModelAttr, "key"> { }
+export interface SQLCreationAttributes extends Optional<SQLModelAttr, "key"> { }
 
 export interface SQLModel
     extends Model<SQLModelAttr, SQLCreationAttributes>,
@@ -32,17 +32,16 @@ export interface SQLModel
  * ```
  */
 export class SQL extends EventEmitter implements BaseDB {
-    name: string;
-    type: string;
-    sequelize: Sequelize;
-    model: ModelCtor<SQLModel>;
+    public readonly name: string;
+    public readonly type: string;
+    public connected: boolean;
+    public readonly serializer: (input: any) => string;
+    public readonly deserializer: (input: string) => any;
+    protected readonly sequelize: Sequelize;
+    protected model: ModelCtor<SQLModel>;
+    protected readonly cache?: BaseCache;
 
-    cache?: BaseCache;
-    connected: boolean;
-    serializer: (input: any) => string;
-    deserializer: (input: string) => any;
-
-    constructor(name: string, config: Config) {
+    public constructor(name: string, config: Config) {
         super();
 
         if (!name) throw new Err(...Constants.NO_DB_NAME);
@@ -92,31 +91,34 @@ export class SQL extends EventEmitter implements BaseDB {
         this.deserializer = config.deserializer || DataParser.deserialize;
     }
 
-    async connect() {
+    public async connect() {
         await this.sequelize.authenticate();
         await this.sequelize.sync();
         this.connected = true;
         this.emit("connect");
     }
 
-    async disconnect() {
+    public async disconnect() {
         await this.sequelize.close();
         this.connected = false;
         this.emit("disconnect");
     }
 
-    async get(key: KeyParams) {
-        if (!isKeyNdNotation(key)) throw new Err(...Constants.INVALID_PARAMETERS);
-        if (isString(key)) return this.getKey(key);
-        if (isArray(key)) {
-            const [vKey, dotNot] = key;
-            const val = await this.getKey(vKey);
-            if (isObject(val)) return DotNotations.getKey(val, dotNot);
-            else throw new Err(...Constants.VALUE_NOT_OBJECT);
+    public async get(kpar: KeyParams) {
+        let key: string, dotNot: string | undefined;
+        if (isArray(kpar)) [key, dotNot] = kpar;
+        else key = kpar;
+
+        const pair = await this.getKey(key);
+        if (dotNot) {
+            if(!isObject(pair.value)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            pair.value = DotNotations.getKey(pair.value, dotNot);
         }
+        this.emit("valueGet", pair);
+        return pair;
     }
 
-    async getKey(key: string) {
+    protected async getKey(key: string) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
 
@@ -126,24 +128,30 @@ export class SQL extends EventEmitter implements BaseDB {
             rval = mod?.get().value;
         }
 
-        const val = this.deserializer(`${rval}`);
-        this.emit("valueGet", { key, value: val });
-        return val;
+        return new Pair(key, this.deserializer(`${rval}`));
     }
 
-    async set(key: KeyParams, value: any) {
-        if (!isKeyNdNotation(key)) throw new Err(...Constants.INVALID_PARAMETERS);
-        if (isString(key)) return this.setKey(key, value);
-        if (isArray(key)) {
-            const [vKey, dotNot] = key;
-            const val = await this.getKey(vKey);
-            if (!isObject(val)) throw new Err(...Constants.VALUE_NOT_OBJECT);
-            const newVal = DotNotations.setKey(val, dotNot, value);
-            return this.setKey(vKey, newVal);
-        }
+    public async set(kpar: KeyParams, value: any) {
+        if (!isKeyNdNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+
+        let key: string, dotNot: string | undefined;
+        if (isArray(kpar)) [key, dotNot] = kpar;
+        else key = kpar;
+
+        const pair = await this.getKey(key);
+        pair.old = pair.value;
+
+        if (dotNot) {
+            if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            pair.value = DotNotations.setKey(pair.old, dotNot, value);
+        } else pair.value = value;
+
+        this.emit(pair.old ? "valueUpdate" : "valueSet", Pair);
+        const settedPair = await this.setKey(pair.key, pair.value);
+        return { ...pair, ...settedPair } as Pair;
     }
 
-    async setKey(key: string, value: any) {
+    protected async setKey(key: string, value: any) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
         if (!value) throw new Err(...Constants.NO_VALUE);
@@ -152,21 +160,16 @@ export class SQL extends EventEmitter implements BaseDB {
         let oldVal: any;
 
         const [mod, isCreated] = await this.model.findOrCreate({ where: { key } });
-        if (!isCreated) {
-            const __v = mod.get().value;
-            oldVal = this.deserializer(`${__v}`);
-        }
-
+        if (!isCreated) oldVal = this.deserializer(`${mod.get().value}`);
         await this.model.update({ value: serval }, { where: { key } });
         this.cache?.set(key, serval);
-        const val = this.deserializer(serval);
-        oldVal
-            ? this.emit("valueUpdate", { key, value: oldVal }, { key, value: val })
-            : this.emit("valueSet", { key, value: val });
-        return val;
+
+        const pair = new Pair(key, this.deserializer(serval));
+        pair.old = oldVal;
+        return pair;
     }
 
-    async delete(key: string) {
+    public async delete(key: string) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
 
@@ -178,27 +181,30 @@ export class SQL extends EventEmitter implements BaseDB {
         return totalDeleted;
     }
 
-    async truncate() {
+    public async truncate() {
         const totalDeleted = await this.model.destroy({ truncate: true });
         this.emit("truncate", totalDeleted);
         return totalDeleted;
     }
 
-    async all() {
+    public async all() {
         const allMods = await this.model.findAll();
         this.cache?.empty();
         const allKeys = allMods.map(m => {
             const mod = m.get();
             this.cache?.set(mod.key, mod.value);
-            const value = this.deserializer(`${mod.value}`);
-            return { key: mod.key, value }
+            return new Pair(mod.key, this.deserializer(`${mod.value}`));
         });
 
         this.emit("valueFetch", allKeys);
         return allKeys;
     }
 
-    entries() {
+    public empty() {
+        this.cache?.empty();
+    }
+
+    public entries() {
         return this.cache?.entries() || [];
     }
 }

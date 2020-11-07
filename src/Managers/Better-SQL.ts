@@ -21,16 +21,15 @@ import fs from "fs-extra";
  * ```
  */
 export class BetterSQL extends EventEmitter implements BaseDB {
-    name: string;
-    type = "better-sqlite";
-    sqlite: Sqlite.Database;
+    public readonly name: string;
+    public readonly type = "better-sqlite";
+    public connected: boolean;
+    public readonly serializer: (input: any) => string;
+    public readonly deserializer: (input: string) => any;
+    protected readonly cache?: BaseCache;
+    protected readonly sqlite: Sqlite.Database;
 
-    cache?: BaseCache;
-    connected: boolean;
-    serializer: (input: any) => string;
-    deserializer: (input: string) => any;
-
-    constructor(name: string, config: Config) {
+    public constructor(name: string, config: Config) {
         super();
 
         if (!name) throw new Err(...Constants.NO_DB_NAME);
@@ -61,7 +60,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         this.deserializer = config.deserializer || DataParser.deserialize;
     }
 
-    async connect() {
+    public async connect() {
         if (!this.sqlite.open) throw new Err(...Constants.ERROR_OPENING_CONNECTION);
         const cnt = this.sqlite.prepare("SELECT count(*) FROM sqlite_master WHERE type = 'table' AND name = ?;").get(this.name);
 
@@ -81,75 +80,82 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         this.emit("connect");
     }
 
-    async disconnect() {
+    public async disconnect() {
         this.sqlite.close();
         this.connected = false;
         this.emit("disconnect");
     }
 
-    async get(key: KeyParams) {
-        if (!isKeyNdNotation(key)) throw new Err(...Constants.INVALID_PARAMETERS);
-        if (isString(key)) return this.getKey(key);
-        if (isArray(key)) {
-            const [vKey, dotNot] = key;
-            const val = await this.getKey(vKey);
-            if (isObject(val)) return DotNotations.getKey(val, dotNot);
-            else throw new Err(...Constants.VALUE_NOT_OBJECT);
+    public async get(kpar: KeyParams) {
+        if (!isKeyNdNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+
+        let key: string, dotNot: string | undefined;
+        if (isArray(kpar)) [key, dotNot] = kpar;
+        else key = kpar;
+
+        const pair = await this.getKey(key);
+        if (dotNot) {
+            if(!isObject(pair.value)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            pair.value = DotNotations.getKey(pair.value, dotNot);
         }
+        this.emit("valueGet", pair);
+        return pair;
     }
 
-    async getKey(key: string) {
+    protected async getKey(key: string) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
 
         let rval = this.cache?.get(key);
-        if (!rval) {
+        if (isUndefined(rval)) {
             const raw = this.sqlite.prepare(`SELECT * FROM ${this.name} WHERE key = ?;`).get(key);
             if (raw && raw.value) rval = raw.value;
         }
 
-        const val = this.deserializer(`${rval}`);
-        this.emit("valueGet", { key, value: val });
-        return val;
+        return new Pair(key, this.deserializer(`${rval}`));
     }
 
-    async set(key: KeyParams, value: any) {
-        if (!isKeyNdNotation(key)) throw new Err(...Constants.INVALID_PARAMETERS);
-        if (isString(key)) return this.setKey(key, value);
-        if (isArray(key)) {
-            const [vKey, dotNot] = key;
-            const val = await this.getKey(vKey);
-            if (!isObject(val)) throw new Err(...Constants.VALUE_NOT_OBJECT);
-            const newVal = DotNotations.setKey(val, dotNot, value);
-            return this.setKey(vKey, newVal);
-        }
+    async set(kpar: KeyParams, value: any) {
+        if (!isKeyNdNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+
+        let key: string, dotNot: string | undefined;
+        if (isArray(kpar)) [key, dotNot] = kpar;
+        else key = kpar;
+
+        const pair = await this.getKey(key);
+        pair.old = pair.value;
+
+        if (dotNot) {
+            if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            pair.value = DotNotations.setKey(pair.old, dotNot, value);
+        } else pair.value = value;
+
+        const npair = await this.setKey(pair.key, pair.value);
+        if (pair.old) npair.old = pair.old;
+        this.emit(pair.old ? "valueUpdate" : "valueSet", npair);
+        return npair;
     }
 
-    async setKey(key: string, value: any) {
+    protected async setKey(key: string, value: any) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
         if (!value) throw new Err(...Constants.NO_VALUE);
-
         const serval = this.serializer(value);
         let oldVal: any;
 
-        const isThere = await this.getKey(key);
-        if (isThere) {
-            oldVal = this.deserializer(isThere);
+        let mod = this.sqlite.prepare(`SELECT * FROM ${this.name} WHERE key = ?;`).get(key);;
+        if (mod && mod.value) {
+            oldVal = this.deserializer(`${mod.value}`);
             this.sqlite.prepare(`UPDATE ${this.name} SET value = ? WHERE key = ?;`).run(serval, key);
-        } else {
-            this.sqlite.prepare(`INSERT INTO ${this.name} (key, value) VALUES (?, ?);`).run(key, serval);
-        }
-
+        } else this.sqlite.prepare(`INSERT INTO ${this.name} (key, value) VALUES (?, ?);`).run(key, serval);
         this.cache?.set(key, serval);
-        const val = this.deserializer(serval);
-        oldVal
-            ? this.emit("valueUpdate", { key, value: oldVal }, { key, value: val })
-            : this.emit("valueSet", { key, value: val });
-        return val;
+        
+        const pair: Pair = new Pair(key, this.deserializer(serval));
+        if (oldVal) pair.old = oldVal;
+        return pair;
     }
 
-    async delete(key: string) {
+    public async delete(key: string) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
 
@@ -159,28 +165,29 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         return totalDeleted;
     }
 
-    async truncate() {
+    public async truncate() {
         const { changes: totalDeleted } = this.sqlite.prepare(`DELETE FROM ${this.name}`).run();
         this.emit("truncate", totalDeleted);
         return totalDeleted;
     }
 
-    async all() {
+    public async all() {
         const allMods = this.sqlite.prepare(`SELECT * FROM ${this.name}`).all();
         this.cache?.empty();
-        const allKeys = allMods.map((m: Pair) => {
-            const key = m.key;
-            const rvalue = m.value;
-            const value = this.deserializer(`${rvalue}`);
-            this.cache?.set(key, m.value);
-            return { key, value }
+        const allKeys = allMods.map(({ key, value: rvalue }) => {
+            this.cache?.set(key, rvalue);
+            return new Pair(key, this.deserializer(rvalue));
         });
 
         this.emit("valueFetch", allKeys);
         return allKeys;
     }
 
-    entries() {
+    public empty() {
+       this.cache?.empty();
+    }
+
+    public entries() {
         return this.cache?.entries() || [];
     }
 }

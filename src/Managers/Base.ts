@@ -1,55 +1,144 @@
 import { EventEmitter } from "events";
-import { isFunction } from "lodash";
+import { isFunction, isString } from "lodash";
 import { Config } from "../Utils/Configuration";
+import Constants from "../Utils/Constants";
 import { KeyParams } from "../Utils/DBUtils";
+import { Err } from "../Utils/Error";
 
-export type Pair = {
+export interface Pair {
     key: string;
     value: any;
+    full: any;
+    old?: any;
 }
 
+export class Pair {
+    constructor(key: string, value: any) {
+        if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
+        this.key = key;
+        this.value = value;
+        this.full = value;
+    }
+}
+
+/**
+ * Default structure of the BaseDB. All the database are in this structure and must be.
+ */
 export interface BaseDB extends EventEmitter {
-    type: string;
-    name: string;
-    cache?: BaseCache;
+    /**
+     * Type of the database
+     */
+    readonly type: string;
+
+    /**
+     * Name of the database
+     */
+    readonly name: string;
+
+    /**
+     * Shows if the database is connected
+     */
     connected: boolean;
 
-    connect: () => Promise<void>;
-    disconnect: () => Promise<void>;
-    serializer: (input: any) => string;
-    deserializer: (input: string) => any;
-
-    get: (key: KeyParams) => Promise<any>;
-    set: (key: KeyParams, value: any) => Promise<any>;
-    delete: (key: string) => Promise<number>;
-    truncate: () => Promise<number>;
-    all: () => Promise<Pair[]>;
-    entries: () => Pair[];
+    /**
+     * Serializer used to serialize the data
+     */
+    readonly serializer: (input: any) => string;
 
     /**
-     * Emitted on connect
+     * Deserializer used to deserialize the data
      */
-    on(event: "connect", listener: () => void): this;
+    readonly deserializer: (input: string) => any;
 
     /**
-     * Emitted on disconnect
+     * Connects to the database and perform inital tasks
+     * @example ```js
+     * await database.connect();
+     * ```
      */
-    on(event: "disconnect", listener: () => void): this;
+    connect(): Promise<void>;
 
     /**
-     * Emitted when a value is set
+     * Disconnects from the database
+     * @example ```js
+     * await database.disconnect();
+     * ```
      */
-    on(event: "valueSet", listener: (pair: Pair) => void): this;
+    disconnect(): Promise<void>;
 
     /**
-     * Emitted when a value is retrieved
+     * Sets a value for the specified key
+     * @param key Key for which the data should be got
+     * @example ```js
+     * await database.set("somekey", { hello: { world: true } });
+     * await database.get(["somekey", "hello.world"]);
+     * ```
      */
-    on(event: "valueGet", listener: (pair: Pair) => void): this;
+    get(key: KeyParams): Promise<Pair>;
 
     /**
-     * Emitted when a value is updated
+     * Sets a value for the specified key
+     * @param key Key for which the data should be set
+     * @param value Value to be set
+     * @example ```js
+     * await database.set("somekey", { hello: { world: true } });
+     * await database.set(["somekey", "hello.world"], false); // with Dot notations
+     * ```
      */
-    on(event: "valueUpdate", listener: (oldPair: Pair, newPair: Pair) => void): this;
+    set(key: KeyParams, value: any): Promise<Pair>;
+
+    /**
+     * Deletes a data pair from the table
+     * @param key Key to be deleted
+     * @example ```js
+     * await database.delete();
+     * ```
+     */
+    delete(key: string): Promise<number>;
+
+    /**
+     * Truncates all the data from the table
+     * @example ```js
+     * await database.truncate();
+     * ```
+     */
+    truncate(): Promise<number>;
+
+    /**
+     * Fetches everything from database
+     * @example ```js
+     * await database.all();
+     * ```
+     */
+    all(): Promise<Pair[]>;
+
+    /**
+     * Gives all cached data (empty if cache is disabled)
+     * @example ```js
+     * database.entries();
+     * ```
+     */
+    entries(): Pair[];
+
+    /**
+     * Clears cache
+     * @example ```js
+     * database.empty();
+     * ```
+     */
+    empty(): void;
+
+    on(event: string, listener: (...args: any[]) => void): this;
+    
+    /**
+     * Emitted on connect or disconnected
+     */
+    on(event: "connect" | "disconnect", listener: () => void): this;
+
+    /**
+     * Emitted when a value is set, retrieved or updated
+     */
+    on(event: "valueSet" | "valueGet" | "valueUpdate", listener: (pair: Pair) => void): this;
 
     /**
      * Emitted when a value is updated
@@ -68,7 +157,7 @@ export interface BaseDB extends EventEmitter {
 }
 
 export interface BaseDBConstructor {
-    new(name: string, config: Config): BaseDB;
+    new (name: string, config: Config): BaseDB;
 }
 
 export function isBaseDBConstructor(dialect: any): dialect is BaseDBConstructor {
@@ -96,11 +185,33 @@ export interface BaseCacheConstructor {
     new(): BaseCache;
 }
 
+/**
+ * Default structure of the Cache. All the cache store are in this structure and must be.
+ */
 export interface BaseCache {
+    /**
+     * Get a cached key (returns undeserialized data)
+     */
     get: (key: string) => string | undefined;
+    
+    /**
+     * Set a cached/new key (pass in the serialized data)
+     */
     set: (key: string, value: string) => string | undefined;
+
+    /**
+     * Delete a cached key
+     */
     delete: (key: string) => number;
+
+    /**
+     * All the cached pairs
+     */
     entries: () => Pair[];
+
+    /**
+     * Empties the cache store
+     */
     empty: () => void;
 }
 
@@ -123,6 +234,9 @@ export function isBaseCacheInstance(cacheProtos: any): cacheProtos is BaseCache 
     return true;
 }
 
+/**
+ * Default Memory store
+ */
 export class Memory implements BaseCache {
     type = "Memory";
     base: Map<string, string>;
@@ -145,7 +259,7 @@ export class Memory implements BaseCache {
     }
 
     entries() {
-        return [...this.base.entries()].map(([key, value]) => ({ key, value }));
+        return [...this.base.entries()].map(([key, value]) => new Pair(key, value));
     }
 
     empty() {

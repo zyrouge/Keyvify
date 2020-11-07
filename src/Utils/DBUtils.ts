@@ -15,8 +15,8 @@ export const DotNotations = {
 
 export function isKeyNdNotation(key: any): key is KeyNdNotation {
     if (!key) return false;
-    if (isString(key)) return true;
-    if (isArray(key) && key.length === key.filter(k => isString(k)).length && key.length === 2) return true;
+    if (isString(key) && isValidLiteral(key)) return true;
+    if (isArray(key) && key.length === 2 && isString(key[0])) return true;
     return false;
 }
 
@@ -56,7 +56,7 @@ export async function exportData(database: BaseDB, file: string) {
 }
 
 const alphabets = new Array(26).fill(null).map((n, i) => String.fromCharCode(65 + i)).join("");
-const valid = [...alphabets, ...alphabets.toLowerCase(), ...new Array(10).fill(null).map((n, i) => i), "_"];
+const valid = [...alphabets, ...alphabets.toLowerCase(), ...new Array(10).fill(null).map((n, i) => `${i}`), "_"];
 
 export function isValidLiteral(str: string) {
     return [...str].filter(s => !valid.includes(s)).length === 0;
