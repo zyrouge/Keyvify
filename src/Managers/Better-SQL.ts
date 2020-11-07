@@ -129,18 +129,15 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
         if (!value) throw new Err(...Constants.NO_VALUE);
-
         const serval = this.serializer(value);
         let oldVal: any;
 
-        const isThere = await this.getKey(key);
-        if (isThere) {
-            oldVal = this.deserializer(isThere);
+        let mod = this.sqlite.prepare(`SELECT * FROM ${this.name} WHERE key = ?;`).get(key);;
+        if (mod && mod.value) {
+            oldVal = this.deserializer(`${mod.value}`);
             this.sqlite.prepare(`UPDATE ${this.name} SET value = ? WHERE key = ?;`).run(serval, key);
-        } else {
-            this.sqlite.prepare(`INSERT INTO ${this.name} (key, value) VALUES (?, ?);`).run(key, serval);
-        }
-
+        } else this.sqlite.prepare(`INSERT INTO ${this.name} (key, value) VALUES (?, ?);`).run(key, serval);
+        
         this.cache?.set(key, serval);
         const val = this.deserializer(serval);
         oldVal

@@ -25,9 +25,6 @@ export interface BaseDB extends EventEmitter {
     truncate(): Promise<number>;
     all(): Promise<Pair[]>;
     entries(): Pair[];
-
-    
-    on(event: string, listener: Function): this;
     
     /**
      * Emitted on connect
@@ -68,6 +65,7 @@ export interface BaseDB extends EventEmitter {
      * Emitted when all values are deleted
      */
     on(event: "truncate", listener: (deletedCount: number) => void): this;
+    on(event: string, listener: (...args: any[]) => void): this;
 }
 
 export interface BaseDBConstructor {

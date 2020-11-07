@@ -35,19 +35,12 @@ const init = async () => {
 }
 
 database.on("connect", () => console.log("Connected!"));
-
 database.on("disconnect", () => console.log("Disconnected!"));
-
-database.on("valueGet", (pair) => console.log("Some data was fetched", pair));
-
 database.on("valueSet", (pair) => console.log("Some data was set", pair));
-
+database.on("valueGet", (pair) => console.log("Some data was got", pair));
 database.on("valueDelete", (key) => console.log("Some key was deleted", key));
-
 database.on("valueUpdate", (oldpair, newpair) => console.log("Some data was changed", oldpair, newpair));
-
 database.on("valueFetch", (pairs) => console.log("All data were fetched", pairs));
-
 database.on("truncate", (amount) => console.log("Database was emptied", amount));
 
 init();

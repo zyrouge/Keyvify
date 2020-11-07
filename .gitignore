@@ -105,5 +105,5 @@ docs/src/.vuepress/public/docs
 
 package-lock.json
 lib
-test/db
 examples/typescript/*.js
+*.sqlite*

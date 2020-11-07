@@ -1,8 +1,8 @@
 import { Keyvify } from "keyvify";
 
 const database = Keyvify("my_super_awesome_database", {
-    dialect: "postgres",
-    // storage: __dirname + "/../database.sqlite", // for sqlite
+    dialect: "sqlite", // or some others like postgres
+    storage: __dirname + "/../database.sqlite", // for sqlite
     // username: "hackerman", // if needed
     // password: "pass", // if needed
     // cache: false, // to disable caching not recommended
@@ -41,19 +41,12 @@ const init = async () => {
 }
 
 database.on("connect", () => console.log("Connected!"));
-
 database.on("disconnect", () => console.log("Disconnected!"));
-
 database.on("valueGet", (pair) => console.log("Some data was fetched", pair));
-
 database.on("valueSet", (pair) => console.log("Some data was set", pair));
-
 database.on("valueDelete", (key) => console.log("Some key was deleted", key));
-
 database.on("valueUpdate", (oldpair, newpair) => console.log("Some data was changed", oldpair, newpair));
-
 database.on("valueFetch", (pairs) => console.log("All data were fetched", pairs));
-
 database.on("truncate", (amount) => console.log("Database was emptied", amount));
 
 init();
