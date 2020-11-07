@@ -29,7 +29,7 @@ $ npm i tedious # Microsoft SQL Server
 
 ## ❔ But why Keyvify?
 
-- Simple as [this](#-basic-example)
+- Simple as [this](#%EF%B8%8F-basic-example)
 - Easy for beginners
 - Persistent
 - Promise-based
