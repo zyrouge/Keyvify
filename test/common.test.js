@@ -1,29 +1,35 @@
-import { Keyvify } from "../src";
-import { MongoMemoryServer } from "mongodb-memory-server";
-import path from "path";
+const { Keyvify } = require("../lib");
+const path = require("path");
+const { MongoMemoryServer } = require("mongodb-memory-server");
 
 const memMongoServer = new MongoMemoryServer();
-const dialects: Keyvify.Configuration.Config[] & { toString(): string } = [
+const tests = [
     {
-        storage: path.join(__dirname, "db", "sqldb.sqlite"),
-        dialect: "sqlite",
+        config: {
+            storage: path.join(__dirname, "db", "sqldb.sqlite"),
+            dialect: "sqlite"
+        },
         toString() { return "SQLite" }
     }, {
-        storage: path.join(__dirname, "db", "bsqldb.sqlite"),
-        dialect: "better-sqlite",
+        config: {
+            storage: path.join(__dirname, "db", "bsqldb.sqlite"),
+            dialect: "better-sqlite"
+        },
         toString() { return "Better SQLite" }
     }, {
-        dialect: "mongodb",
-        uri: "nouri",
-        toString() { return "MongoDB" }
+        config: {
+            dialect: "mongodb",
+            uri: "nouri"
+        },
+        toString() { return "MongoDB" },
+        async cleanUp() { await memMongoServer.stop() }
     }
 ];
 
-describe.each(dialects)("%s", (config) => {
-
+describe.each(tests)("%s", ({ config, cleanUp }) => {
     const name = `testing_database`;
     const database = Keyvify(name, config);
-    
+
     test("Checking name", () => {
         expect(database.name).toBe(name);
     });
@@ -35,6 +41,7 @@ describe.each(dialects)("%s", (config) => {
     test("Connect to database", async () => {
         if (database.type === "mongodb" && "uri" in database) {
             const uri = await memMongoServer.getUri();
+            // @ts-ignore
             database.uri = uri;
         } // testing purpose
 
@@ -45,40 +52,40 @@ describe.each(dialects)("%s", (config) => {
     const key1 = "test12345";
     test("Get a key", async () => {
         const val = await database.get(key1);
-        expect(val).toBe(undefined);
+        expect(val.value).toBe(undefined);
     });
 
     const value1 = "somegoodvalue";
     test("Set a key", async () => {
         const val = await database.set(key1, value1);
-        expect(val).toBe(value1);
+        expect(val.value).toBe(value1);
     });
 
     test("Get the key that was set", async () => {
         const val = await database.get(key1);
-        expect(val).toBe(value1);
+        expect(val.value).toBe(value1);
     });
 
     const key2 = "objtest12345";
     test("Get a key (2)", async () => {
         const val = await database.get(key2);
-        expect(val).toBe(undefined);
+        expect(val.value).toBe(undefined);
     });
 
     const value2 = { hello: "world" };
     test("Set a key (2)", async () => {
         const val = await database.set(key2, value2);
-        expect(val).toStrictEqual(value2);
+        expect(val.value).toStrictEqual(value2);
     });
 
     test("Get the key that was set (2)", async () => {
         const val = await database.get(key2);
-        expect(val).toStrictEqual(value2);
+        expect(val.value).toStrictEqual(value2);
     });
 
     test("Get the key that was set (2) but only hello", async () => {
         const val = await database.get([key2, "hello"]);
-        expect(val).toBe(value2.hello);
+        expect(val.value).toBe(value2.hello);
     });
 
     test("Count the number of keys in database", async () => {
@@ -98,7 +105,7 @@ describe.each(dialects)("%s", (config) => {
 
     test("Get the deleted key", async () => {
         const val = await database.get(key1);
-        expect(val).toBe(undefined);
+        expect(val.value).toBe(undefined);
     });
 
     test("Empty the table", async () => {
@@ -110,6 +117,6 @@ describe.each(dialects)("%s", (config) => {
         const val = await database.disconnect();
         expect(val).toBe(undefined);
         expect(database.connected).toBe(false);
-        if (database.type === "mongodb") await memMongoServer.stop();
+        if (cleanUp) cleanUp();
     });
-});
+}, 10 * 1000);

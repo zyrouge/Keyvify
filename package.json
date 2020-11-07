@@ -1,7 +1,7 @@
 {
   "name": "keyvify",
   "version": "0.1.0",
-  "description": "A simple key-value pair ORM",
+  "description": "A simple key-value pair supporting various database",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
@@ -77,6 +77,9 @@
     "type": "git",
     "url": "git+https://github.com/zyrouge/keyvify.git"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "keywords": [
     "database",
     "key-value",
@@ -84,7 +87,7 @@
     "sql",
     "sequelize",
     "mongoose",
-    "mongo.db",
+    "mongodb",
     "better-sqlite"
   ],
   "author": "ZYROUGE",

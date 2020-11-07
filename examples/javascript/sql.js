@@ -1,4 +1,4 @@
-import { Keyvify } from "keyvify";
+const { Keyvify } = require("../../lib");
 
 const database = Keyvify("my_super_awesome_database", {
     dialect: "sqlite", // or some others like postgres
@@ -16,12 +16,16 @@ const init = async () => {
 
     const key = "hello";
     const value = "world";
+    const newvalue = "everyone";
 
     // set a data
-    await database.set(key, value); // returns: "world"
+    await database.set(key, value); // returns: { key: "hello", value: "world" }
 
     // get a data
-    await database.get(key); // returns: "world"
+    await database.get(key); // returns: { key: "hello", value: "world" }
+
+    // set a data (updating)
+    await database.set(key, newvalue); // returns: { key: "hello", value: "world" }
 
     // get all data (fetches from the database)
     await database.all(); // returns: [{ key: "hello", value: "world" }]
@@ -30,7 +34,6 @@ const init = async () => {
     database.entries(); // returns: [{ key: "hello", value: "world" }]
 
     // delete a data
-    await database.set("just_to_be_deleted", "xD");
     await database.delete(key); // returns: 1
 
     // delete all
@@ -42,11 +45,11 @@ const init = async () => {
 
 database.on("connect", () => console.log("Connected!"));
 database.on("disconnect", () => console.log("Disconnected!"));
-database.on("valueGet", (pair) => console.log("Some data was fetched", pair));
-database.on("valueSet", (pair) => console.log("Some data was set", pair));
-database.on("valueDelete", (key) => console.log("Some key was deleted", key));
-database.on("valueUpdate", (oldpair, newpair) => console.log("Some data was changed", oldpair, newpair));
-database.on("valueFetch", (pairs) => console.log("All data were fetched", pairs));
-database.on("truncate", (amount) => console.log("Database was emptied", amount));
+database.on("valueSet", (pair) => console.log("Some data was set:", pair));
+database.on("valueGet", (pair) => console.log("Some data was got:", pair));
+database.on("valueDelete", (key) => console.log("Some key was deleted:", key));
+database.on("valueUpdate", (pair) => console.log("Some data was changed:", pair));
+database.on("valueFetch", (pairs) => console.log("All data were fetched:", pairs));
+database.on("truncate", (amount) => console.log("Database was emptied:", amount));
 
 init();

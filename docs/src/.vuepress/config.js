@@ -1,5 +1,12 @@
 const { description } = require('../../package')
 const fs = require('fs')
+const getChildren = (folder) => [
+  '',
+  ...fs
+    .readdirSync(`${__dirname}/../${folder}`)
+    .filter(f => f.endsWith(".md") && f.toLowerCase() !== "readme.md")
+    .map(f => f.replace(".md", ""))
+]
 
 module.exports = {
   /**
@@ -44,6 +51,10 @@ module.exports = {
         target: '_blank'
       },
       {
+        text: 'Examples',
+        link: '/examples/',
+      },
+      {
         text: 'NPM',
         link: 'https://npmjs.com/package/keyvify'
       },
@@ -57,13 +68,14 @@ module.exports = {
         {
           title: 'Guide',
           collapsable: false,
-          children: [
-            '',
-            ...fs
-              .readdirSync(`${__dirname}/../guide`)
-              .filter(f => f.endsWith(".md") && f.toLowerCase() !== "readme.md")
-              .map(f => f.replace(".md", ""))
-          ]
+          children: getChildren("guide")
+        }
+      ],
+      '/examples/': [
+        {
+          title: 'Examples',
+          collapsable: false,
+          children: getChildren("examples")
         }
       ],
     }
