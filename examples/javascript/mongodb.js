@@ -1,4 +1,4 @@
-const { Keyvify } = require("../../lib");
+const { Keyvify } = require("keyvify");
 
 const database = Keyvify("my_super_awesome_database", {
     dialect: "mongodb",

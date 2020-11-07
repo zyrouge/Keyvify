@@ -1,4 +1,4 @@
-import { Keyvify } from "../../src";
+import { Keyvify } from "keyvify";
 
 const database = Keyvify("my_super_awesome_database", {
     dialect: "better-sqlite",
