@@ -104,6 +104,7 @@ docs/src/.vuepress/public/docs
 .tern-port
 
 package-lock.json
+yarn.lock
 lib
 examples/typescript/*.js
 *.sqlite*
