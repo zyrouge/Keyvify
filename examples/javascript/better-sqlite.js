@@ -1,8 +1,8 @@
 import { Keyvify } from "../../src";
 
 const database = Keyvify("my_super_awesome_database", {
-    dialect: "mongodb",
-    uri: process.env.MONGODB_URL
+    dialect: "better-sqlite",
+    storage: __dirname + "/../database.sqlite"
 });
 
 const init = async () => {
@@ -36,8 +36,8 @@ const init = async () => {
 
 database.on("connect", () => console.log("Connected!"));
 database.on("disconnect", () => console.log("Disconnected!"));
-database.on("valueGet", (pair) => console.log("Some data was fetched", pair));
 database.on("valueSet", (pair) => console.log("Some data was set", pair));
+database.on("valueGet", (pair) => console.log("Some data was got", pair));
 database.on("valueDelete", (key) => console.log("Some key was deleted", key));
 database.on("valueUpdate", (oldpair, newpair) => console.log("Some data was changed", oldpair, newpair));
 database.on("valueFetch", (pairs) => console.log("All data were fetched", pairs));

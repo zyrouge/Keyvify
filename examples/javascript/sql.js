@@ -1,8 +1,13 @@
-import { Keyvify } from "../../src";
+import { Keyvify } from "keyvify";
 
 const database = Keyvify("my_super_awesome_database", {
-    dialect: "mongodb",
-    uri: process.env.MONGODB_URL
+    dialect: "sqlite", // or some others like postgres
+    storage: __dirname + "/../database.sqlite", // for sqlite
+    // username: "hackerman", // if needed
+    // password: "pass", // if needed
+    // cache: false, // to disable caching not recommended
+    // host: "localhost", // if needed
+    // port: 0000 // if needed
 });
 
 const init = async () => {
@@ -25,6 +30,7 @@ const init = async () => {
     database.entries(); // returns: [{ key: "hello", value: "world" }]
 
     // delete a data
+    await database.set("just_to_be_deleted", "xD");
     await database.delete(key); // returns: 1
 
     // delete all
