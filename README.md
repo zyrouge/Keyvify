@@ -36,7 +36,7 @@ $ npm i tedious # Microsoft SQL Server
 - Supports [multiple databases](https://keyvify.js.org/docs/globals.html#supporteddialectsstrs)
 - Support for **dot notation**
 - Import and Export the data to a simple JSON file
-- Store almost anything (Refer all the types [here](https://www.npmjs.com/package/serialize-javascript)
+- Store almost anything (Refer all the types [here](https://www.npmjs.com/package/serialize-javascript))
 - Quick setup (When using **better-sqlite3** or **sqlite**)
 - In-built caching using NodeJS `Map`
 - Support for custom **Dialects** and **Cache** store
