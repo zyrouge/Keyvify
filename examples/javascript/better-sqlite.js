@@ -1,4 +1,4 @@
-const { Keyvify } = require("../../lib");
+const { Keyvify } = require("keyvify");
 
 const database = Keyvify("my_super_awesome_database", {
     dialect: "better-sqlite",
@@ -12,6 +12,9 @@ const init = async () => {
     const key = "hello";
     const value = "world";
     const newvalue = "everyone";
+    const key2 = "array";
+    const value2 = ["val1", "val2"];
+    const key3 = "math";
 
     // set a data
     await database.set(key, value); // returns: { key: "hello", value: "world" }
@@ -21,6 +24,36 @@ const init = async () => {
 
     // set a data (updating)
     await database.set(key, newvalue); // returns: { key: "hello", value: "world" }
+
+    // push a data
+    await database.push(key2, value2[0]); // returns: { key: "array", value: ["val1"] }
+
+    // push a data (2)
+    await database.push(key2, value2[1]); // returns: { key: "array", value: ["val1", "val2"] }
+
+    // pull a data
+    await database.pull(key2, value2[0]); // returns: { key: "array", value: ["val2"] }
+
+    // add a data
+    await database.add(key3, 10); // returns: { key: "math", value: 10 }
+
+    // subtract a data
+    await database.subtract(key3, 5); // returns: { key: "math", value: 5 }
+
+    // multiply a data
+    await database.multiply(key3, 2); // returns: { key: "math", value: 10 }
+
+    // divide a data
+    await database.divide(key3, 2); // returns: { key: "math", value: 5 }
+
+    // raise a data by power
+    await database.exponent(key3, 2); // returns: { key: "math", value: 25 }
+
+    // modulo a data
+    await database.modulo(key3, 5); // returns: { key: "math", value: 0 }
+
+    // do math on a data
+    await database.math(key3, "+", 10); // returns: { key: "math", value: 10 }
 
     // get all data (fetches from the database)
     await database.all(); // returns: [{ key: "hello", value: "world" }]

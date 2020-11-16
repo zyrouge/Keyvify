@@ -1,19 +1,19 @@
 import { Config, checkConfig, isBetterSQLDialect } from "../Utils/Configuration";
 import { Err } from "../Utils/Error";
-import { isArray, isObject, isString, isUndefined } from "lodash";
+import { isArray, isNumber, isObject, isString, isUndefined } from "lodash";
 import Sqlite from "better-sqlite3";
 import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory, Pair } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
-import * as DataParser from "../Utils/DataParser";
 import Constants from "../Utils/Constants";
-import { KeyParams, isKeyNdNotation, DotNotations, isValidLiteral } from "../Utils/DBUtils";
+import { KeyParams, isKeyAndNotation, isValidLiteral, DefSerializer, DefDeserializer, parseKey, getKey, setKey, pullValue, isValidMathOperator, mathValue, Operators } from "../Utils/Utilites";
 import fs from "fs-extra";
 
 /**
  * The Better-SQL DB Client
  *
  * Refer all the Events here: {@link BaseDB.on}
+ * Refer all the Methods' description here: {@link BaseDB}
  *
  * Example:
  * ```js
@@ -56,8 +56,8 @@ export class BetterSQL extends EventEmitter implements BaseDB {
 
         this.connected = false;
 
-        this.serializer = config.serializer || DataParser.serialize;
-        this.deserializer = config.deserializer || DataParser.deserialize;
+        this.serializer = config.serializer || DefSerializer;
+        this.deserializer = config.deserializer || DefDeserializer;
     }
 
     public async connect() {
@@ -87,16 +87,17 @@ export class BetterSQL extends EventEmitter implements BaseDB {
     }
 
     public async get(kpar: KeyParams) {
-        if (!isKeyNdNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+        if (!isKeyAndNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
 
         let key: string, dotNot: string | undefined;
         if (isArray(kpar)) [key, dotNot] = kpar;
-        else key = kpar;
+        else [key, dotNot] = parseKey(kpar);
 
         const pair = await this.getKey(key);
         if (dotNot) {
-            if(!isObject(pair.value)) throw new Err(...Constants.VALUE_NOT_OBJECT);
-            pair.value = DotNotations.getKey(pair.value, dotNot);
+            if (isUndefined(pair.old)) pair.old = {};
+            if (!isObject(pair.value)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            pair.value = getKey(pair.value, dotNot);
         }
         this.emit("valueGet", pair);
         return pair;
@@ -116,19 +117,127 @@ export class BetterSQL extends EventEmitter implements BaseDB {
     }
 
     async set(kpar: KeyParams, value: any) {
-        if (!isKeyNdNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+        if (!isKeyAndNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
 
         let key: string, dotNot: string | undefined;
         if (isArray(kpar)) [key, dotNot] = kpar;
-        else key = kpar;
+        else [key, dotNot] = parseKey(kpar);
 
         const pair = await this.getKey(key);
         pair.old = pair.value;
 
         if (dotNot) {
+            if (isUndefined(pair.old)) pair.old = {};
             if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
-            pair.value = DotNotations.setKey(pair.old, dotNot, value);
+            pair.value = setKey(pair.old, dotNot, value);
         } else pair.value = value;
+
+        const npair = await this.setKey(pair.key, pair.value);
+        if (pair.old) npair.old = pair.old;
+        this.emit(pair.old ? "valueUpdate" : "valueSet", npair);
+        return npair;
+    }
+
+    public async push(kpar: KeyParams, value: any) {
+        if (!isKeyAndNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+
+        let key: string, dotNot: string | undefined;
+        if (isArray(kpar)) [key, dotNot] = kpar;
+        else [key, dotNot] = parseKey(kpar);
+
+        const pair = await this.getKey(key);
+        pair.old = pair.value;
+
+        if (dotNot) {
+            if (isUndefined(pair.old)) pair.old = {};
+            if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            const valAr = getKey(pair.old, dotNot, []);
+            valAr.push(value);
+            pair.value = setKey(pair.old, dotNot, valAr);
+        } else {
+            if (isUndefined(pair.old)) pair.old = [];
+            pair.value = [...pair.old, value];
+        }
+
+        const npair = await this.setKey(pair.key, pair.value);
+        if (pair.old) npair.old = pair.old;
+        this.emit(pair.old ? "valueUpdate" : "valueSet", npair);
+        return npair;
+    }
+
+    public async pull(kpar: KeyParams, value: any) {
+        if (!isKeyAndNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+
+        let key: string, dotNot: string | undefined;
+        if (isArray(kpar)) [key, dotNot] = kpar;
+        else [key, dotNot] = parseKey(kpar);
+
+        const pair = await this.getKey(key);
+        pair.old = pair.value;
+
+        if (dotNot) {
+            if (isUndefined(pair.old)) pair.old = {};
+            if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            let valAr = getKey(pair.old, dotNot, []);
+            valAr = pullValue(valAr, value);
+            pair.value = setKey(pair.old, dotNot, valAr);
+        } else {
+            if (isUndefined(pair.old)) pair.old = [];
+            pair.value = pullValue(pair.old, value);
+        }
+
+        const npair = await this.setKey(pair.key, pair.value);
+        if (pair.old) npair.old = pair.old;
+        this.emit(pair.old ? "valueUpdate" : "valueSet", npair);
+        return npair;
+    }
+
+    public add(kpar: KeyParams, value: number) {
+        return this.math(kpar, "+", value);
+    }
+
+    public subtract(kpar: KeyParams, value: number) {
+        return this.math(kpar, "-", value);
+    }
+
+    public multiply(kpar: KeyParams, value: number) {
+        return this.math(kpar, "*", value);
+    }
+
+    public divide(kpar: KeyParams, value: number) {
+        return this.math(kpar, "/", value);
+    }
+
+    public modulo(kpar: KeyParams, value: number) {
+        return this.math(kpar, "%", value);
+    }
+
+    public exponent(kpar: KeyParams, value: number) {
+        return this.math(kpar, "**", value);
+    }
+
+    public async math(kpar: KeyParams, operator: Operators, value: number) {
+        if (!isKeyAndNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+        if (!isValidMathOperator(operator)) throw new Err(...Constants.INVALID_PARAMETERS);
+        if (!isNumber(value)) throw new Err(...Constants.INVALID_PARAMETERS);
+
+        let key: string, dotNot: string | undefined;
+        if (isArray(kpar)) [key, dotNot] = kpar;
+        else [key, dotNot] = parseKey(kpar);
+
+        const pair = await this.getKey(key);
+        pair.old = pair.value;
+
+        if (dotNot) {
+            if (isUndefined(pair.old)) pair.old = {};
+            if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            let valAr = getKey(pair.old, dotNot, 0);
+            valAr = mathValue(valAr, value, operator);
+            pair.value = setKey(pair.old, dotNot, valAr);
+        } else {
+            if (isUndefined(pair.old)) pair.old = 0;
+            pair.value = mathValue(pair.old, value, operator);
+        }
 
         const npair = await this.setKey(pair.key, pair.value);
         if (pair.old) npair.old = pair.old;
@@ -139,7 +248,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
     protected async setKey(key: string, value: any) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
-        if (!value) throw new Err(...Constants.NO_VALUE);
+        if (isUndefined(value)) throw new Err(...Constants.NO_VALUE);
         const serval = this.serializer(value);
         let oldVal: any;
 

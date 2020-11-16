@@ -4,7 +4,7 @@ import BSQLConstructor, { Database as BSQLDatabse } from "better-sqlite3";
 import { Err } from "./Error";
 import Constants from "./Constants";
 import { isString, isNumber, isFunction, isUndefined } from "lodash";
-import * as DBUtils from "./DBUtils";
+import * as Utils from "./Utilites";
 
 export type SequelizeDialectsType = SequelizeDialectsDefTypes | Sequelize;
 export type MongoDBType = "mongodb";
@@ -104,7 +104,7 @@ export interface Config {
 export function checkConfig(config: Config, checkDialect: boolean = true) {
     if (config.username && !isString(config.username)) throw new Err(...Constants.INVALID_USERNAME);
     if (config.password && !isString(config.password)) throw new Err(...Constants.INVALID_PASSWORD);
-    if (config.database && (!isString(config.database) || !DBUtils.isValidLiteral(config.database))) throw new Err(...Constants.INVALID_DATABASE);
+    if (config.database && (!isString(config.database) || !Utils.isValidLiteral(config.database))) throw new Err(...Constants.INVALID_DATABASE);
     if (config.host && !isString(config.host)) throw new Err(...Constants.INVALID_HOST);
     if (!isUndefined(config.port) && !isNumber(config.uri)) throw new Err(...Constants.INVALID_PORT);
     if (config.uri && !isString(config.uri)) throw new Err(...Constants.INVALID_URI);
