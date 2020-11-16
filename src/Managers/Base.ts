@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 import { isFunction, isString } from "lodash";
 import { Config } from "../Utils/Configuration";
 import Constants from "../Utils/Constants";
-import { KeyParams } from "../Utils/DBUtils";
+import { KeyParams } from "../Utils/Utilites";
 import { Err } from "../Utils/Error";
 
 export interface Pair {
@@ -71,7 +71,8 @@ export interface BaseDB extends EventEmitter {
      * @param key Key for which the data should be got
      * @example ```js
      * await database.set("somekey", { hello: { world: true } });
-     * await database.get(["somekey", "hello.world"]);
+     * await database.get(["somekey", "hello.world"]); // with Dot notations
+     * await database.get("somekey.hello.world"); // with Dot notations
      * ```
      */
     get(key: KeyParams): Promise<Pair>;
@@ -83,9 +84,34 @@ export interface BaseDB extends EventEmitter {
      * @example ```js
      * await database.set("somekey", { hello: { world: true } });
      * await database.set(["somekey", "hello.world"], false); // with Dot notations
+     * await database.set("somekey.hello.world", false); // with Dot notations
      * ```
      */
     set(key: KeyParams, value: any): Promise<Pair>;
+
+    /**
+     * Sets a value for the specified key
+     * @param key Key for which the data should be set
+     * @param value Value to be set
+     * @example ```js
+     * await database.pull("somekey", "hello");
+     * await database.pull(["somekey", "hello.world"], "hello"); // with Dot notations
+     * await database.pull("somekey.hello.world", "hello"); // with Dot notations
+     * ```
+     */
+    pull(key: KeyParams, value: any): Promise<Pair>;
+
+    /**
+     * Sets a value for the specified key
+     * @param key Key for which the data should be set
+     * @param value Value to be set
+     * @example ```js
+     * await database.push("somekey", "hello");
+     * await database.push(["somekey", "hello.world"], "hello"); // with Dot notations
+     * await database.push("somekey.hello.world", "hello"); // with Dot notations
+     * ```
+     */
+    push(key: KeyParams, value: any): Promise<Pair>;
 
     /**
      * Deletes a data pair from the table

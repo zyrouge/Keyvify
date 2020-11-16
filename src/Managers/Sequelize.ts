@@ -6,8 +6,7 @@ import { Sequelize, Model, ModelCtor, DataTypes, Optional } from "sequelize";
 import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory, Pair } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
-import * as DataParser from "../Utils/DataParser";
-import { isKeyNdNotation, KeyParams, DotNotations, isValidLiteral } from "../Utils/DBUtils";
+import { KeyParams, isKeyAndNotation, isValidLiteral, DefSerializer, DefDeserializer, parseKey, getKey, setKey, pullValue } from "../Utils/Utilites";
 import fs from "fs-extra";
 
 export interface SQLModelAttr {
@@ -87,8 +86,8 @@ export class SQL extends EventEmitter implements BaseDB {
 
         this.connected = false;
 
-        this.serializer = config.serializer || DataParser.serialize;
-        this.deserializer = config.deserializer || DataParser.deserialize;
+        this.serializer = config.serializer || DefSerializer;
+        this.deserializer = config.deserializer || DefDeserializer;
     }
 
     public async connect() {
@@ -105,14 +104,16 @@ export class SQL extends EventEmitter implements BaseDB {
     }
 
     public async get(kpar: KeyParams) {
+        if (!isKeyAndNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+
         let key: string, dotNot: string | undefined;
         if (isArray(kpar)) [key, dotNot] = kpar;
-        else key = kpar;
+        else [key, dotNot] = parseKey(kpar);
 
         const pair = await this.getKey(key);
         if (dotNot) {
             if(!isObject(pair.value)) throw new Err(...Constants.VALUE_NOT_OBJECT);
-            pair.value = DotNotations.getKey(pair.value, dotNot);
+            pair.value = getKey(pair.value, dotNot);
         }
         this.emit("valueGet", pair);
         return pair;
@@ -132,23 +133,77 @@ export class SQL extends EventEmitter implements BaseDB {
     }
 
     public async set(kpar: KeyParams, value: any) {
-        if (!isKeyNdNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+        if (!isKeyAndNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
 
         let key: string, dotNot: string | undefined;
         if (isArray(kpar)) [key, dotNot] = kpar;
-        else key = kpar;
+        else [key, dotNot] = parseKey(kpar);
 
         const pair = await this.getKey(key);
         pair.old = pair.value;
 
         if (dotNot) {
             if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
-            pair.value = DotNotations.setKey(pair.old, dotNot, value);
+            pair.value = setKey(pair.old, dotNot, value);
         } else pair.value = value;
 
         this.emit(pair.old ? "valueUpdate" : "valueSet", Pair);
         const settedPair = await this.setKey(pair.key, pair.value);
         return { ...pair, ...settedPair } as Pair;
+    }
+
+    public async push(kpar: KeyParams, value: any) {
+        if (!isKeyAndNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+
+        let key: string, dotNot: string | undefined;
+        if (isArray(kpar)) [key, dotNot] = kpar;
+        else [key, dotNot] = parseKey(kpar);
+
+        const pair = await this.getKey(key);
+        pair.old = pair.value;
+
+        if (dotNot) {
+            if (!pair.old) pair.old = {};
+            if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            const valAr = getKey(pair.old, dotNot, value) || [];
+            valAr.push(value);
+            pair.value = setKey(pair.old, dotNot, valAr);
+        } else {
+            if (!pair.old) pair.old = [];
+            pair.value = [...pair.old, value];
+        }
+
+        const npair = await this.setKey(pair.key, pair.value);
+        if (pair.old) npair.old = pair.old;
+        this.emit(pair.old ? "valueUpdate" : "valueSet", npair);
+        return npair;
+    }
+
+    public async pull(kpar: KeyParams, value: any) {
+        if (!isKeyAndNotation(kpar)) throw new Err(...Constants.INVALID_PARAMETERS);
+
+        let key: string, dotNot: string | undefined;
+        if (isArray(kpar)) [key, dotNot] = kpar;
+        else [key, dotNot] = parseKey(kpar);
+
+        const pair = await this.getKey(key);
+        pair.old = pair.value;
+
+        if (dotNot) {
+            if (!pair.old) pair.old = {};
+            if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            let valAr = getKey(pair.old, dotNot, value) || [];
+            valAr = pullValue(valAr, value);
+            pair.value = setKey(pair.old, dotNot, valAr);
+        } else {
+            if (!pair.old) pair.old = [];
+            pair.value = pullValue(pair.old, value);
+        }
+
+        const npair = await this.setKey(pair.key, pair.value);
+        if (pair.old) npair.old = pair.old;
+        this.emit(pair.old ? "valueUpdate" : "valueSet", npair);
+        return npair;
     }
 
     protected async setKey(key: string, value: any) {

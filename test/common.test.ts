@@ -60,7 +60,7 @@ describe.each(tests)("%s", ({ config, cleanUp }) => {
             const uri = await memMongoServer.getUri();
             // @ts-ignore
             database.uri = uri;
-        } // testing purpose
+        } // testing purpose only
 
         await database.connect();
         expect(database.connected).toBe(true);

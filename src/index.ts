@@ -1,12 +1,12 @@
 import { isString } from "lodash";
 import * as ConfigUtils from "./Utils/Configuration";
-import * as DBUtils from "./Utils/DBUtils";
 import Constants from "./Utils/Constants";
 import * as BaseManager from "./Managers/Base";
 import * as SQLManager from "./Managers/Sequelize";
 import * as MongoDBManager from "./Managers/Mongoose";
 import * as BSQL from "./Managers/Better-SQL";
 import { Err } from "./Utils/Error";
+import * as Utils from "./Utils/Utilites";
 
 /**
  * Creates a Database with one line. Dialect is automatically chosen from config
@@ -33,7 +33,7 @@ import { Err } from "./Utils/Error";
  */
 export function Keyvify(name: string, config: ConfigUtils.Config) {
     if (!name) throw new Err(...Constants.NO_DB_NAME);
-    if (!isString(name) || !DBUtils.isValidLiteral(name)) throw new Err(...Constants.INVALID_DB_NAME);
+    if (!isString(name) || !Utils.isValidLiteral(name)) throw new Err(...Constants.INVALID_DB_NAME);
     if (!config) throw new Err(...Constants.NO_CONFIG);
     ConfigUtils.checkConfig(config);
 
@@ -55,10 +55,10 @@ export module Keyvify {
     export import MongoDB = MongoDBManager.Mongo;
     export import BetterSQL = BSQL.BetterSQL;
     export import Configuration = ConfigUtils;
-    export import Helpers = DBUtils;
+    export import Utilites = Utils;
 }
 
-export const Utils = {
+export const Helpers = {
     Constants,
     Error: Err
 }
