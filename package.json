@@ -1,6 +1,6 @@
 {
   "name": "keyvify",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A simple key-value database supporting various dialects",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -89,12 +89,12 @@
   ],
   "funding": [
     {
-      "type" : "kofi",
-      "url" : "https://ko-fi.com/zyrouge"
+      "type": "kofi",
+      "url": "https://ko-fi.com/zyrouge"
     },
     {
-      "type" : "patreon",
-      "url" : "https://www.patreon.com/zyrouge"
+      "type": "patreon",
+      "url": "https://www.patreon.com/zyrouge"
     }
   ],
   "author": "ZYROUGE",
