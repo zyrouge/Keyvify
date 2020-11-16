@@ -17,6 +17,8 @@ const init = async () => {
     const key = "hello";
     const value = "world";
     const newvalue = "everyone";
+    const key2 = "array";
+    const value2 = ["val1", "val2"];
 
     // set a data
     await database.set(key, value); // returns: { key: "hello", value: "world" }
@@ -26,6 +28,15 @@ const init = async () => {
 
     // set a data (updating)
     await database.set(key, newvalue); // returns: { key: "hello", value: "world" }
+
+    // push a data
+    await database.push(key2, value2[0]); // returns: { key: "hello", value: ["val1"] }
+
+    // push a data (2)
+    await database.push(key2, value2[1]); // returns: { key: "hello", value: ["val1", "val2"] }
+
+    // pull a data
+    await database.pull(key2, value2[0]); // returns: { key: "hello", value: ["val2"] }
 
     // get all data (fetches from the database)
     await database.all(); // returns: [{ key: "hello", value: "world" }]

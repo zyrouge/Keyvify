@@ -149,9 +149,43 @@ describe.each(tests)("%s", ({ config, cleanUp }) => {
         expect(evnts.valueGet).toBeCalled();
     });
 
+    const key3 = "arraytest";
+    const value3 = "arrayvalue1";
+    const value4 = "arrayvalue2";
+    test("Push a key", async () => {
+        const val = await database.push(key3, value3);
+        expect(val.value).toStrictEqual([value3]);
+        expect(evnts.valueSet).toBeCalled();
+    });
+
+    test("Push a key", async () => {
+        const val = await database.push(key3, value4);
+        console.log(val.value);
+        expect(val.value).toStrictEqual([value3, value4]);
+        expect(evnts.valueSet).toBeCalled();
+    });
+
+    test("Get the key that was pushed", async () => {
+        const val = await database.get(key3);
+        expect(val.value).toStrictEqual([value3, value4]);
+        expect(evnts.valueGet).toBeCalled();
+    });
+
+    test("Pull a key", async () => {
+        const val = await database.pull(key3, value3);
+        expect(val.value).toStrictEqual([value4]);
+        expect(evnts.valueSet).toBeCalled();
+    });
+
+    test("Get the key that was pulled", async () => {
+        const val = await database.get(key3);
+        expect(val.value).toStrictEqual([value4]);
+        expect(evnts.valueGet).toBeCalled();
+    });
+
     test("Empty the table", async () => {
         const val = await database.truncate();
-        expect(val).toBe(1);
+        expect(val).toBe(2);
         expect(evnts.truncate).toBeCalled();
     });
 

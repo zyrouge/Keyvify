@@ -13,6 +13,7 @@ import fs from "fs-extra";
  * The Better-SQL DB Client
  *
  * Refer all the Events here: {@link BaseDB.on}
+ * Refer all the Methods' description here: {@link BaseDB}
  *
  * Example:
  * ```js
@@ -150,7 +151,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         if (dotNot) {
             if (!pair.old) pair.old = {};
             if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
-            const valAr = getKey(pair.old, dotNot, value) || [];
+            const valAr = getKey(pair.old, dotNot, []);
             valAr.push(value);
             pair.value = setKey(pair.old, dotNot, valAr);
         } else {
@@ -177,7 +178,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         if (dotNot) {
             if (!pair.old) pair.old = {};
             if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
-            let valAr = getKey(pair.old, dotNot, value) || [];
+            let valAr = getKey(pair.old, dotNot, []);
             valAr = pullValue(valAr, value);
             pair.value = setKey(pair.old, dotNot, valAr);
         } else {
