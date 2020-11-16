@@ -1,4 +1,4 @@
-import { isArray, isBoolean, isString, get as ObjectGet, set as ObjectSet, pull as ArrayPull } from "lodash";
+import { isArray, isBoolean, isString, get as ObjectGet, set as ObjectSet, pull as ArrayPull, isNumber } from "lodash";
 import { BaseDB, isBaseDBInstance } from "../Managers/Base";
 import serializeJavascript from "serialize-javascript";
 import Constants from "./Constants";
@@ -19,13 +19,56 @@ export type KeyParams = string | KeyAndNotation;
 
 export const getKey = ObjectGet;
 export const setKey= ObjectSet;
-export const pullValue = ArrayPull;
 
 export function parseKey(fullKey: string) {
     if(!fullKey) throw new Err(...Constants.NO_KEY);
     if (!isString(fullKey)) throw new Err(...Constants.NO_KEY);
     const [key, ...path] = fullKey.split(".");
     return [key, path.join(".")] as KeyParams;
+}
+
+export const pullValue = ArrayPull;
+
+export type Operators = "+" | "-" | "*" | "/" | "%" | "**" |
+    "add" | "addition" |
+    "sub" | "subtract" | "subtraction" |
+    "multi" | "multiply" | "multiplication" |
+    "div" | "divide" | "diivision" |
+    "mod" | "modulo" | "remind" | "reminder" |
+    "exponent" | "exponential" | "raise" | "power";
+
+const AddOperators = ["+", "add", "addition"];
+const SubOperators = ["-", "sub" , "subtract" , "subtraction"];
+const MultiOperators = ["*", "multi" , "multiply" , "multiplication"];
+const DivideOperators = ["/", "div" , "divide" , "diivision"];
+const ModOperators = ["%", "mod" , "modulo" , "remind" , "reminder"];
+const ExpoOperators = ["**", "exponent" , "exponential" , "raise" , "power"];
+
+export const OperatorsArray = [
+    ...AddOperators,
+    ...SubOperators,
+    ...MultiOperators,
+    ...DivideOperators,
+    ...ModOperators,
+    ...ExpoOperators
+]
+
+export function isValidMathOperator(op: string): op is Operators {
+    if (OperatorsArray.includes(op)) return true;
+    return false;
+}
+
+export function mathValue(val1:number, val2: number, op: string) {
+    if (!isNumber(val1) || !isNumber(val2)) throw new Err(...Constants.INVALID_NUMBER);
+    if (!isValidMathOperator(op)) throw new Err(...Constants.INVALID_MATH_OPERATOR);
+
+    if (AddOperators.includes(op)) return val1 + val2;
+    if (SubOperators.includes(op)) return val1 - val2;
+    if (MultiOperators.includes(op)) return val1 * val2;
+    if (DivideOperators.includes(op)) return val1 / val2;
+    if (ModOperators.includes(op)) return val1 % val2;
+    if (ExpoOperators.includes(op)) return val1 ** val2;
+    else throw new Err(...Constants.INVALID_MATH_OPERATOR);
 }
 
 export function isKeyAndNotation(key: any): key is KeyAndNotation {

@@ -30,7 +30,9 @@ const Constants = {
     NO_FILE_PATH: ["No file path was passed", "INVALID_PARAMETERS"] as cc,
     INVALID_FILE_PATH: ["Invalid file path was passed", "INVALID_PARAMETERS"] as cc,
     FILE_DOES_NO_EXIST: ["Specified file path does not exist", "FILE_DOES_NO_EXIST"] as cc,
-    INVALID_REPLACE: ["Invalid replace option was passed", "INVALID_REPLACE"] as cc
+    INVALID_REPLACE: ["Invalid replace option was passed", "INVALID_REPLACE"] as cc,
+    INVALID_NUMBER: ["Invalid number was passed", "INVALID_NUMBER"] as cc,
+    INVALID_MATH_OPERATOR: ["Invalid operator was passed", "INVALID_MATH_OPERATOR"] as cc
 }
 
 export default Constants;
