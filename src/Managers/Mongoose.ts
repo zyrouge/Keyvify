@@ -99,7 +99,7 @@ export class Mongo extends EventEmitter implements BaseDB {
 
         const pair = await this.getKey(key);
         if (dotNot) {
-            if(!isObject(pair.value)) throw new Err(...Constants.VALUE_NOT_OBJECT);
+            if (!isObject(pair.value)) throw new Err(...Constants.VALUE_NOT_OBJECT);
             pair.value = getKey(pair.value, dotNot);
         }
         this.emit("valueGet", pair);
@@ -149,13 +149,13 @@ export class Mongo extends EventEmitter implements BaseDB {
         pair.old = pair.value;
 
         if (dotNot) {
-            if (!pair.old) pair.old = {};
+            if (isUndefined(pair.old)) pair.old = {};
             if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
             const valAr = getKey(pair.old, dotNot, []);
             valAr.push(value);
             pair.value = setKey(pair.old, dotNot, valAr);
         } else {
-            if (!pair.old) pair.old = [];
+            if (isUndefined(pair.old)) pair.old = [];
             pair.value = [...pair.old, value];
         }
 
@@ -176,13 +176,13 @@ export class Mongo extends EventEmitter implements BaseDB {
         pair.old = pair.value;
 
         if (dotNot) {
-            if (!pair.old) pair.old = {};
+            if (isUndefined(pair.old)) pair.old = {};
             if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
             let valAr = getKey(pair.old, dotNot, []);
             valAr = pullValue(valAr, value);
             pair.value = setKey(pair.old, dotNot, valAr);
         } else {
-            if (!pair.old) pair.old = [];
+            if (isUndefined(pair.old)) pair.old = [];
             pair.value = pullValue(pair.old, value);
         }
 
@@ -229,13 +229,13 @@ export class Mongo extends EventEmitter implements BaseDB {
         pair.old = pair.value;
 
         if (dotNot) {
-            if (!pair.old) pair.old = {};
+            if (isUndefined(pair.old)) pair.old = {};
             if (!isObject(pair.old)) throw new Err(...Constants.VALUE_NOT_OBJECT);
             let valAr = getKey(pair.old, dotNot, 0);
             valAr = mathValue(valAr, value, operator);
             pair.value = setKey(pair.old, dotNot, valAr);
         } else {
-            if (!pair.old && pair.old !== 0) pair.old = 0;
+            if (isUndefined(pair.old)) pair.old = 0;
             pair.value = mathValue(pair.old, value, operator);
         }
 
@@ -248,7 +248,7 @@ export class Mongo extends EventEmitter implements BaseDB {
     protected async setKey(key: string, value: any) {
         if (!key) throw new Err(...Constants.NO_KEY);
         if (!isString(key)) throw new Err(...Constants.INVALID_KEY);
-        if (!value) throw new Err(...Constants.NO_VALUE);
+        if (isUndefined(value)) throw new Err(...Constants.NO_VALUE);
 
         const serval = this.serializer(value);
         let oldVal: any;

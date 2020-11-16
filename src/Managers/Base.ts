@@ -2,7 +2,7 @@ import { EventEmitter } from "events";
 import { isFunction, isString } from "lodash";
 import { Config } from "../Utils/Configuration";
 import Constants from "../Utils/Constants";
-import { KeyParams } from "../Utils/Utilites";
+import { KeyParams, Operators } from "../Utils/Utilites";
 import { Err } from "../Utils/Error";
 
 export interface Pair {
@@ -90,7 +90,7 @@ export interface BaseDB extends EventEmitter {
     set(key: KeyParams, value: any): Promise<Pair>;
 
     /**
-     * Sets a value for the specified key
+     * Pulles a value into the array of the specified key
      * @param key Key for which the data should be set
      * @param value Value to be set
      * @example ```js
@@ -102,7 +102,7 @@ export interface BaseDB extends EventEmitter {
     pull(key: KeyParams, value: any): Promise<Pair>;
 
     /**
-     * Sets a value for the specified key
+     * Pushes a value into the array of the specified key
      * @param key Key for which the data should be set
      * @param value Value to be set
      * @example ```js
@@ -112,6 +112,91 @@ export interface BaseDB extends EventEmitter {
      * ```
      */
     push(key: KeyParams, value: any): Promise<Pair>;
+
+    /**
+     * Adds the value for the specified key
+     * @param key Key for which the data should be added
+     * @param value Value to be added
+     * @example ```js
+     * await database.add("somekey", 20);
+     * await database.add(["somekey", "hello.world"], 20); // with Dot notations
+     * await database.add("somekey.hello.world", 20); // with Dot notations
+     * ```
+     */
+    add(key: KeyParams, value: any): Promise<Pair>;
+
+    /**
+     * Subtracts the value for the specified key
+     * @param key Key for which the data should be subtracted
+     * @param value Value to be subtracted
+     * @example ```js
+     * await database.subtract("somekey", 20);
+     * await database.subtract(["somekey", "hello.world"], 20); // with Dot notations
+     * await database.subtract("somekey.hello.world", 20); // with Dot notations
+     * ```
+     */
+    subtract(key: KeyParams, value: any): Promise<Pair>;
+
+    /**
+     * Multiplies the value for the specified key
+     * @param key Key for which the data should be multiplied
+     * @param value Value to be multiplied
+     * @example ```js
+     * await database.multiply("somekey", 20);
+     * await database.multiply(["somekey", "hello.world"], 20); // with Dot notations
+     * await database.multiply("somekey.hello.world", 20); // with Dot notations
+     * ```
+     */
+    multiply(key: KeyParams, value: any): Promise<Pair>;
+
+    /**
+     * Divides the value for the specified key
+     * @param key Key for which the data should be divided
+     * @param value Value to be divided
+     * @example ```js
+     * await database.divide("somekey", 20);
+     * await database.divide(["somekey", "hello.world"], 20); // with Dot notations
+     * await database.divide("somekey.hello.world", 20); // with Dot notations
+     * ```
+     */
+    divide(key: KeyParams, value: any): Promise<Pair>;
+
+    /**
+     * Modulo(s) the value for the specified key
+     * @param key Key for which the data should be modulo(ed)
+     * @param value Value to be modulo(ed)
+     * @example ```js
+     * await database.modulo("somekey", 20);
+     * await database.modulo(["somekey", "hello.world"], 20); // with Dot notations
+     * await database.modulo("somekey.hello.world", 20); // with Dot notations
+     * ```
+     */
+    modulo(key: KeyParams, value: any): Promise<Pair>;
+
+    /**
+     * Raises the value according to the value for the specified key
+     * @param key Key for which the data should be raised
+     * @param value Power
+     * @example ```js
+     * await database.exponent("somekey", 20);
+     * await database.exponent(["somekey", "hello.world"], 20); // with Dot notations
+     * await database.exponent("somekey.hello.world", 20); // with Dot notations
+     * ```
+     */
+    exponent(key: KeyParams, value: any): Promise<Pair>;
+
+    /**
+     * Does math for the specified key
+     * @param key Key for which the data should be set
+     * @param operator Math Operator to use used. Refer all operators here: {@link Operators}
+     * @param value Value
+     * @example ```js
+     * await database.math("somekey", "+", "hello");
+     * await database.math(["somekey", "hello.world"], "add", 20); // with Dot notations
+     * await database.math("somekey.hello.world", "addition", 20); // with Dot notations
+     * ```
+     */
+    math(key: KeyParams, operator: Operators,value: any): Promise<Pair>;
 
     /**
      * Deletes a data pair from the table

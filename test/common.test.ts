@@ -160,7 +160,6 @@ describe.each(tests)("%s", ({ config, cleanUp }) => {
 
     test("Push a key", async () => {
         const val = await database.push(key3, value4);
-        console.log(val.value);
         expect(val.value).toStrictEqual([value3, value4]);
         expect(evnts.valueSet).toBeCalled();
     });
@@ -183,9 +182,58 @@ describe.each(tests)("%s", ({ config, cleanUp }) => {
         expect(evnts.valueGet).toBeCalled();
     });
 
+    const key4 = "mathtest";
+    test("Add a key", async () => {
+        const val = await database.add(key4, 100);
+        expect(val.value).toBe(100);
+        expect(evnts.valueSet).toBeCalled();
+    });
+    
+    test("Subtract a key", async () => {
+        const val = await database.subtract(key4, 20);
+        expect(val.value).toBe(80);
+        expect(evnts.valueSet).toBeCalled();
+    });
+    
+    test("Multiply a key", async () => {
+        const val = await database.multiply(key4, 2);
+        expect(val.value).toBe(160);
+        expect(evnts.valueSet).toBeCalled();
+    });
+    
+    test("Divide a key", async () => {
+        const val = await database.divide(key4, 4);
+        expect(val.value).toBe(40);
+        expect(evnts.valueSet).toBeCalled();
+    });
+    
+    test("Exponent a key", async () => {
+        const val = await database.exponent(key4, 2);
+        expect(val.value).toBe(1600);
+        expect(evnts.valueSet).toBeCalled();
+    });
+    
+    test("Modulo a key", async () => {
+        const val = await database.modulo(key4, 4);
+        expect(val.value).toBe(0);
+        expect(evnts.valueSet).toBeCalled();
+    });
+    
+    test("Math a key", async () => {
+        const val = await database.math(key4, "+", 20);
+        expect(val.value).toBe(20);
+        expect(evnts.valueSet).toBeCalled();
+    });
+
+    test("Get the key that was math'ed", async () => {
+        const val = await database.get(key4);
+        expect(val.value).toStrictEqual(20);
+        expect(evnts.valueGet).toBeCalled();
+    });
+
     test("Empty the table", async () => {
         const val = await database.truncate();
-        expect(val).toBe(2);
+        expect(val).toBe(3);
         expect(evnts.truncate).toBeCalled();
     });
 
