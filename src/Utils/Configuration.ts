@@ -1,6 +1,8 @@
 import { BaseCache, isBaseDBConstructor, isBaseDBInstance, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, BaseDBConstructor } from "../Managers/Base";
-import { Sequelize, Dialect as SequelizeDialectsDefTypes } from "sequelize";
-import BSQLConstructor, { Database as BSQLDatabse } from "better-sqlite3";
+import type { Sequelize, Dialect as SequelizeDialectsDefTypes } from "sequelize";
+import type { Database as BSQLDatabse } from "better-sqlite3";
+import * as BSQLDriver from "../Utils/Drivers/BetterSqlite";
+import * as SequelizeDriver from "../Utils/Drivers/Sequelize";
 import { Err } from "./Error";
 import Constants from "./Constants";
 import { isString, isNumber, isFunction, isUndefined } from "lodash";
@@ -133,7 +135,8 @@ export function isSupportedDialect(dialect: any): dialect is SupportedDialectsTy
 
 export function isSequelizeDialect(dialect: any): dialect is SequelizeDialectsType {
     if (SequelizeDialectsStrs.includes(dialect)) return true;
-    if (dialect instanceof Sequelize) return true;
+    const driver = SequelizeDriver.getDriver();
+    if (dialect instanceof driver.Sequelize) return true;
     return false;
 }
 
@@ -144,6 +147,7 @@ export function isMongoDialect(dialect: any): dialect is MongoDBType {
 
 export function isBetterSQLDialect(dialect: any): dialect is BetterSQLiteType {
     if (dialect === "better-sqlite") return true;
-    if (dialect instanceof BSQLConstructor) return true;
+    const driver = BSQLDriver.getDriver();
+    if (dialect instanceof driver) return true;
     return false;
 }
