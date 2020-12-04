@@ -1,0 +1,421 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Keyvify Documentation</title>
+	<meta name="description" content="Documentation for Keyvify Documentation">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">Keyvify Documentation</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+							<input type="checkbox" id="tsd-filter-only-exported" />
+							<label class="tsd-widget" for="tsd-filter-only-exported">Only exported</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1>Keyvify Documentation</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<p align="center">
+					<img
+					src="https://keyvify.js.org/assets/logo.png" width="230px">
+				</p>
+				<h1 align="center">Keyvify</h1>
+				<p align="center">A simple key-value database supporting various dialects</p>
+				<p><a href="https://www.npmjs.com/package/keyvify"><img src="https://badgen.net/npm/v/keyvify" alt="npm version"></a>
+				<a href="https://www.npmjs.com/package/keyvify"><img src="https://badgen.net/npm/dm/keyvify" alt="npm downloads"></a></p>
+				<a href="#📦-installation" id="📦-installation" style="color: inherit; text-decoration: none;">
+					<h2>📦 Installation</h2>
+				</a>
+				<pre><code class="language-console"><span class="hljs-meta">$</span><span class="bash"> npm install keyvify</span></code></pre>
+				<p>and also a Dialect</p>
+				<pre><code class="language-console"><span class="hljs-meta">$</span><span class="bash"> npm i pg pg-hstore <span class="hljs-comment"># Postgres</span></span>
+<span class="hljs-meta">$</span><span class="bash"> npm i mysql2 <span class="hljs-comment"># MySQL</span></span>
+<span class="hljs-meta">$</span><span class="bash"> npm i mariadb <span class="hljs-comment"># MariaDB</span></span>
+<span class="hljs-meta">$</span><span class="bash"> npm i sqlite3 <span class="hljs-comment"># SQLite</span></span>
+<span class="hljs-meta">$</span><span class="bash"> npm i better-sqlite3 <span class="hljs-comment"># Better SQLite</span></span>
+<span class="hljs-meta">$</span><span class="bash"> npm i mongoose <span class="hljs-comment"># MongoDB</span></span>
+<span class="hljs-meta">$</span><span class="bash"> npm i tedious <span class="hljs-comment"># Microsoft SQL Server</span></span></code></pre>
+				<a href="#❔-but-why-keyvify" id="❔-but-why-keyvify" style="color: inherit; text-decoration: none;">
+					<h2>❔ But why Keyvify?</h2>
+				</a>
+				<ul>
+					<li>Simple as <a href="#%EF%B8%8F-basic-example">this</a></li>
+					<li>Easy for beginners</li>
+					<li>Persistent</li>
+					<li>Promise-based</li>
+					<li>Supports <a href="https://keyvify.js.org/docs/globals.html#supporteddialectsstrs">multiple databases</a></li>
+					<li>Support for <strong>dot notation</strong></li>
+					<li>Import and Export the data to a simple JSON file</li>
+					<li>Store almost anything (Refer all the types <a href="https://www.npmjs.com/package/serialize-javascript">here</a>)</li>
+					<li>Quick setup (When using <strong>better-sqlite3</strong> or <strong>sqlite</strong>)</li>
+					<li>In-built caching using NodeJS <code>Map</code></li>
+					<li>Support for custom <strong>Dialects</strong> and <strong>Cache</strong> store</li>
+					<li>Typescript support</li>
+					<li>Works from NodeJS v8 (might vary)</li>
+				</ul>
+				<a href="#🤔-how-does-it-work" id="🤔-how-does-it-work" style="color: inherit; text-decoration: none;">
+					<h2>🤔 How does it work?</h2>
+				</a>
+				<ul>
+					<li>Keyvify internally uses <a href="https://www.npmjs.com/package/better-sqlite3">Better SQLite</a> for SQLite, <a href="https://www.npmjs.com/package/sequelize">Sequelize</a> for other SQL related-databases, <a href="https://www.npmjs.com/package/mongoose">Mongoose</a> for MongoDB</li>
+					<li>Serializes all the data into <code>string</code> to store in database. Uses <a href="https://www.npmjs.com/package/serialize-javascript">sequelize-javascript</a> by default due to limitation in <code>JSON.stringify</code></li>
+					<li>Keyvify caches the data when something is <code>set</code>, <code>get</code>, <code>delete</code> and <code>fetch</code></li>
+				</ul>
+				<a href="#📄-documentation" id="📄-documentation" style="color: inherit; text-decoration: none;">
+					<h2>📄 Documentation</h2>
+				</a>
+				<p>Refer <a href="https://keyvify.js.org/docs">here</a></p>
+				<a href="#📙-guides" id="📙-guides" style="color: inherit; text-decoration: none;">
+					<h2>📙 Guides</h2>
+				</a>
+				<p>Refer <a href="https://keyvify.js.org/guide">here</a></p>
+				<a href="#✏️-basic-example" id="✏️-basic-example" style="color: inherit; text-decoration: none;">
+					<h2>✏️ Basic Example</h2>
+				</a>
+				<pre><code class="language-js"><span class="hljs-keyword">const</span> { Keyvify } = <span class="hljs-built_in">require</span>(<span class="hljs-string">&quot;keyvify&quot;</span>);
+
+<span class="hljs-keyword">const</span> database = Keyvify(<span class="hljs-string">&quot;my_super_awesome_database&quot;</span>, {
+  <span class="hljs-attr">dialect</span>: <span class="hljs-string">&quot;better-sqlite&quot;</span>,
+  <span class="hljs-attr">storage</span>: __dirname + <span class="hljs-string">&quot;/../database.sqlite&quot;</span>,
+});
+
+<span class="hljs-keyword">const</span> init = <span class="hljs-keyword">async</span> () =&gt; {
+  <span class="hljs-comment">// connect</span>
+  <span class="hljs-keyword">await</span> database.connect();
+
+  <span class="hljs-comment">// set a data</span>
+  <span class="hljs-keyword">await</span> database.set(<span class="hljs-string">&quot;hello&quot;</span>, <span class="hljs-string">&quot;world&quot;</span>); <span class="hljs-comment">// returns: { key: &quot;hello&quot;, value: &quot;world&quot; }</span>
+
+  <span class="hljs-comment">// get a data</span>
+  <span class="hljs-keyword">await</span> database.get(<span class="hljs-string">&quot;hello&quot;</span>); <span class="hljs-comment">// returns: { key: &quot;hello&quot;, value: &quot;world&quot; }</span>
+
+  <span class="hljs-comment">// get all data (fetches from the database)</span>
+  <span class="hljs-keyword">await</span> database.all(); <span class="hljs-comment">// returns: [{ key: &quot;hello&quot;, value: &quot;world&quot; }]</span>
+
+  <span class="hljs-comment">// get all **cached** data (only data from `database.cache` and doesnt need await)</span>
+  database.entries(); <span class="hljs-comment">// returns: [{ key: &quot;hello&quot;, value: &quot;world&quot; }]</span>
+
+  <span class="hljs-comment">// delete a data</span>
+  <span class="hljs-keyword">await</span> database.delete(<span class="hljs-string">&quot;hello&quot;</span>); <span class="hljs-comment">// returns: 1</span>
+
+  <span class="hljs-comment">// delete all</span>
+  <span class="hljs-keyword">await</span> database.truncate(); <span class="hljs-comment">// returns: 0 (number of deleted keys)</span>
+
+  <span class="hljs-comment">// disconnect</span>
+  <span class="hljs-keyword">await</span> database.disconnect();
+};
+
+database.on(<span class="hljs-string">&quot;connect&quot;</span>, <span class="hljs-function">() =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Connected!&quot;</span>));
+database.on(<span class="hljs-string">&quot;disconnect&quot;</span>, <span class="hljs-function">() =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Disconnected!&quot;</span>));
+database.on(<span class="hljs-string">&quot;valueSet&quot;</span>, <span class="hljs-function">(<span class="hljs-params">pair</span>) =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Some data was set:&quot;</span>, pair));
+database.on(<span class="hljs-string">&quot;valueGet&quot;</span>, <span class="hljs-function">(<span class="hljs-params">pair</span>) =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Some data was got:&quot;</span>, pair));
+database.on(<span class="hljs-string">&quot;valueDelete&quot;</span>, <span class="hljs-function">(<span class="hljs-params">key</span>) =&gt;</span> <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Some key was deleted:&quot;</span>, key));
+database.on(<span class="hljs-string">&quot;valueUpdate&quot;</span>, <span class="hljs-function">(<span class="hljs-params">pair</span>) =&gt;</span>
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Some data was changed:&quot;</span>, pair)
+);
+database.on(<span class="hljs-string">&quot;valueFetch&quot;</span>, <span class="hljs-function">(<span class="hljs-params">pairs</span>) =&gt;</span>
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;All data were fetched:&quot;</span>, pairs)
+);
+database.on(<span class="hljs-string">&quot;truncate&quot;</span>, <span class="hljs-function">(<span class="hljs-params">amount</span>) =&gt;</span>
+  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&quot;Database was emptied:&quot;</span>, amount)
+);</code></pre>
+				<p>Click <a href="./examples">here</a> for more examples</p>
+				<a href="#🚩-resources" id="🚩-resources" style="color: inherit; text-decoration: none;">
+					<h2>🚩 Resources</h2>
+				</a>
+				<ul>
+					<li><a href="https://keyvify.js.org">Website</a></li>
+					<li><a href="https://keyvify.js.org/docs">Documentation</a></li>
+					<li><a href="https://npmjs.com/keyvify">NPM</a></li>
+					<li><a href="https://zyrouge.gq/discord">Discord</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-namespace">
+						<a href="modules/keyvify.html">Keyvify</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-class">
+						<a href="classes/bettersql.html" class="tsd-kind-icon">BetterSQL</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/err.html" class="tsd-kind-icon">Err</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/memory.html" class="tsd-kind-icon">Memory</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/mongo.html" class="tsd-kind-icon">Mongo</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/pair.html" class="tsd-kind-icon">Pair</a>
+					</li>
+					<li class=" tsd-kind-class">
+						<a href="classes/sql.html" class="tsd-kind-icon">SQL</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/basecache.html" class="tsd-kind-icon">Base<wbr>Cache</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/basecacheconstructor.html" class="tsd-kind-icon">Base<wbr>Cache<wbr>Constructor</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/basedb.html" class="tsd-kind-icon">BaseDB</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/basedbconstructor.html" class="tsd-kind-icon">BaseDBConstructor</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/config.html" class="tsd-kind-icon">Config</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/mongoosemodel.html" class="tsd-kind-icon">Mongoose<wbr>Model</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/sqlcreationattributes.html" class="tsd-kind-icon">SQLCreation<wbr>Attributes</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/sqlmodel.html" class="tsd-kind-icon">SQLModel</a>
+					</li>
+					<li class=" tsd-kind-interface">
+						<a href="interfaces/sqlmodelattr.html" class="tsd-kind-icon">SQLModel<wbr>Attr</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#bettersqlitetype" class="tsd-kind-icon">BetterSQLite<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#keyandnotation" class="tsd-kind-icon">Key<wbr>And<wbr>Notation</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#keyparams" class="tsd-kind-icon">Key<wbr>Params</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#mongodbtype" class="tsd-kind-icon">MongoDBType</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#operators" class="tsd-kind-icon">Operators</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#sequelizedialectstype" class="tsd-kind-icon">Sequelize<wbr>Dialects<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#supporteddialectstype" class="tsd-kind-icon">Supported<wbr>Dialects<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#cc" class="tsd-kind-icon">cc</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#addoperators" class="tsd-kind-icon">Add<wbr>Operators</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#divideoperators" class="tsd-kind-icon">Divide<wbr>Operators</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#expooperators" class="tsd-kind-icon">Expo<wbr>Operators</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#modoperators" class="tsd-kind-icon">Mod<wbr>Operators</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#multioperators" class="tsd-kind-icon">Multi<wbr>Operators</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#operatorsarray" class="tsd-kind-icon">Operators<wbr>Array</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#sequelizedialectsstrs" class="tsd-kind-icon">Sequelize<wbr>Dialects<wbr>Strs</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#suboperators" class="tsd-kind-icon">Sub<wbr>Operators</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#supporteddialectsstrs" class="tsd-kind-icon">Supported<wbr>Dialects<wbr>Strs</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#alphabets" class="tsd-kind-icon">alphabets</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#getkey" class="tsd-kind-icon">get<wbr>Key</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#modulename" class="tsd-kind-icon">module<wbr>Name</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#pullvalue" class="tsd-kind-icon">pull<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#setkey" class="tsd-kind-icon">set<wbr>Key</a>
+					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#valid" class="tsd-kind-icon">valid</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#defdeserializer" class="tsd-kind-icon">Def<wbr>Deserializer</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#defserializer" class="tsd-kind-icon">Def<wbr>Serializer</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#checkconfig" class="tsd-kind-icon">check<wbr>Config</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#exportdata" class="tsd-kind-icon">export<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#getdriver" class="tsd-kind-icon">get<wbr>Driver</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#importdata" class="tsd-kind-icon">import<wbr>Data</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isbasecacheconstructor" class="tsd-kind-icon">is<wbr>Base<wbr>Cache<wbr>Constructor</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isbasecacheinstance" class="tsd-kind-icon">is<wbr>Base<wbr>Cache<wbr>Instance</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isbasedbconstructor" class="tsd-kind-icon">is<wbr>BaseDBConstructor</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isbasedbinstance" class="tsd-kind-icon">is<wbr>BaseDBInstance</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isbettersqldialect" class="tsd-kind-icon">is<wbr>BetterSQLDialect</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isinstalled" class="tsd-kind-icon">is<wbr>Installed</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#iskeyandnotation" class="tsd-kind-icon">is<wbr>Key<wbr>And<wbr>Notation</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#ismongodialect" class="tsd-kind-icon">is<wbr>Mongo<wbr>Dialect</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#issequelizedialect" class="tsd-kind-icon">is<wbr>Sequelize<wbr>Dialect</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#issupporteddialect" class="tsd-kind-icon">is<wbr>Supported<wbr>Dialect</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isvalidliteral" class="tsd-kind-icon">is<wbr>Valid<wbr>Literal</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isvalidmathoperator" class="tsd-kind-icon">is<wbr>Valid<wbr>Math<wbr>Operator</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#mathvalue" class="tsd-kind-icon">math<wbr>Value</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#normalize" class="tsd-kind-icon">normalize</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#parsekey" class="tsd-kind-icon">parse<wbr>Key</a>
+					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#constants" class="tsd-kind-icon">Constants</a>
+					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#helpers" class="tsd-kind-icon">Helpers</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
