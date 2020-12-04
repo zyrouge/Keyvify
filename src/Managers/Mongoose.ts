@@ -1,13 +1,14 @@
 import { Config, checkConfig, isMongoDialect } from "../Utils/Configuration";
 import { isObject, isArray, isString, isUndefined, isNumber } from "lodash";
-import Mongoose from "mongoose";
+import { getDriver } from "../Utils/Drivers/Mongoose";
+import type { Document, Schema, Model } from "mongoose";
 import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory, Pair } from "./Base";
 import { EventEmitter } from "events";
 import { Err } from "../Utils/Error";
 import Constants from "../Utils/Constants";
 import { KeyParams, isKeyAndNotation, isValidLiteral, DefSerializer, DefDeserializer, parseKey, getKey, setKey, pullValue, isValidMathOperator, mathValue, Operators } from "../Utils/Utilites";
 
-export interface MongooseModel extends Mongoose.Document {
+export interface MongooseModel extends Document {
     key: string;
     value: string;
 }
@@ -16,6 +17,7 @@ export interface MongooseModel extends Mongoose.Document {
  * The Mongo DB Client
  * 
  * Refer all the Events here: {@link BaseDB.on}
+ * 
  * Refer all the Methods' description here: {@link BaseDB}
  * 
  * Example:
@@ -29,10 +31,11 @@ export class Mongo extends EventEmitter implements BaseDB {
     public connected: boolean;
     public readonly serializer: (input: any) => string;
     public readonly deserializer: (input: string) => any;
-    protected schema: Mongoose.Schema;
-    protected model: Mongoose.Model<MongooseModel>;
+    protected schema: Schema;
+    protected model: Model<MongooseModel>;
     protected readonly cache?: BaseCache;
     private readonly uri: string;
+    private MongooseDriver: ReturnType<typeof getDriver>;
 
     public constructor(name: string, config: Config) {
         super();
@@ -48,7 +51,8 @@ export class Mongo extends EventEmitter implements BaseDB {
         if (!config.uri) throw new Err(...Constants.MISSING_MONGODB_URI);
         this.uri = config.uri;
 
-        this.schema = new Mongoose.Schema({
+        this.MongooseDriver = getDriver();
+        this.schema = new this.MongooseDriver.Schema({
             key: {
                 type: String,
                 required: true,
@@ -60,7 +64,7 @@ export class Mongo extends EventEmitter implements BaseDB {
             }
         });
 
-        this.model = Mongoose.model<MongooseModel>(this.name, this.schema);
+        this.model = this.MongooseDriver.model<MongooseModel>(this.name, this.schema);
 
         if (config.cache !== false) {
             if (isBaseCacheConstructor(config.cache)) this.cache = new config.cache();
@@ -75,7 +79,7 @@ export class Mongo extends EventEmitter implements BaseDB {
     }
 
     public async connect() {
-        await Mongoose.connect(this.uri, {
+        await this.MongooseDriver.connect(this.uri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true
@@ -85,7 +89,7 @@ export class Mongo extends EventEmitter implements BaseDB {
     }
 
     public async disconnect() {
-        Mongoose.disconnect();
+        this.MongooseDriver.disconnect();
         this.connected = false;
         this.emit("disconnect");
     }
