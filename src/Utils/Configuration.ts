@@ -135,8 +135,8 @@ export function isSupportedDialect(dialect: any): dialect is SupportedDialectsTy
 
 export function isSequelizeDialect(dialect: any): dialect is SequelizeDialectsType {
     if (SequelizeDialectsStrs.includes(dialect)) return true;
-    const driver = SequelizeDriver.getDriver();
-    if (dialect instanceof driver.Sequelize) return true;
+    const driver = SequelizeDriver.isInstalled() ? SequelizeDriver.getDriver() : null;
+    if (driver && dialect instanceof driver.Sequelize) return true;
     return false;
 }
 
@@ -147,7 +147,7 @@ export function isMongoDialect(dialect: any): dialect is MongoDBType {
 
 export function isBetterSQLDialect(dialect: any): dialect is BetterSQLiteType {
     if (dialect === "better-sqlite") return true;
-    const driver = BSQLDriver.getDriver();
-    if (dialect instanceof driver) return true;
+    const driver = BSQLDriver.isInstalled() ? BSQLDriver.getDriver() : null;
+    if (driver && dialect instanceof driver) return true;
     return false;
 }
