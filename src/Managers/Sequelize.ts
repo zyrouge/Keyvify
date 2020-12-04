@@ -2,7 +2,8 @@ import { Config, checkConfig, isSequelizeDialect } from "../Utils/Configuration"
 import Constants from "../Utils/Constants";
 import { Err } from "../Utils/Error";
 import { isArray, isNumber, isObject, isString, isUndefined } from "lodash";
-import { Sequelize, Model, ModelCtor, DataTypes, Optional } from "sequelize";
+import { getDriver } from "../Utils/Drivers/Sequelize";
+import type { Sequelize, Model, ModelCtor, Optional } from "sequelize";
 import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory, Pair } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
@@ -24,6 +25,7 @@ export interface SQLModel
  * The SQL DB Client
  *
  * Refer all the Events here: {@link BaseDB.on}
+ * 
  * Refer all the Methods' description here: {@link BaseDB}
  *
  * Example:
@@ -40,6 +42,7 @@ export class SQL extends EventEmitter implements BaseDB {
     protected readonly sequelize: Sequelize;
     protected model: ModelCtor<SQLModel>;
     protected readonly cache?: BaseCache;
+    private SequelizeDriver: ReturnType<typeof getDriver>;
 
     public constructor(name: string, config: Config) {
         super();
@@ -57,8 +60,9 @@ export class SQL extends EventEmitter implements BaseDB {
         if (storagePath) fs.ensureFileSync(storagePath);
 
         this.name = name;
-        this.type = config.dialect instanceof Sequelize ? config.dialect.getDialect() : config.dialect;
-        this.sequelize = config.dialect instanceof Sequelize ? config.dialect : new Sequelize({
+        this.SequelizeDriver = getDriver();
+        this.type = config.dialect instanceof this.SequelizeDriver.Sequelize ? config.dialect.getDialect() : config.dialect;
+        this.sequelize = config.dialect instanceof this.SequelizeDriver.Sequelize ? config.dialect : new this.SequelizeDriver.Sequelize({
             database: config.database,
             username: config.username,
             password: config.password,
@@ -74,9 +78,9 @@ export class SQL extends EventEmitter implements BaseDB {
         this.model = this.sequelize.define<SQLModel>(this.name, {
             key: {
                 primaryKey: true,
-                type: DataTypes.STRING
+                type: this.SequelizeDriver.DataTypes.STRING
             },
-            value: DataTypes.TEXT
+            value: this.SequelizeDriver.DataTypes.TEXT
         });
 
         if (config.cache !== false) {

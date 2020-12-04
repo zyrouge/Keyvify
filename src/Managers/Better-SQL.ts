@@ -1,7 +1,8 @@
 import { Config, checkConfig, isBetterSQLDialect } from "../Utils/Configuration";
 import { Err } from "../Utils/Error";
 import { isArray, isNumber, isObject, isString, isUndefined } from "lodash";
-import Sqlite from "better-sqlite3";
+import { getDriver } from "../Utils/Drivers/BetterSqlite";
+import type Sqlite from "better-sqlite3";
 import { BaseCache, BaseDB, isBaseCacheConstructor, isBaseCacheInstance, Memory, Pair } from "./Base";
 import { EventEmitter } from "events";
 import path from "path";
@@ -13,6 +14,7 @@ import fs from "fs-extra";
  * The Better-SQL DB Client
  *
  * Refer all the Events here: {@link BaseDB.on}
+ * 
  * Refer all the Methods' description here: {@link BaseDB}
  *
  * Example:
@@ -28,6 +30,7 @@ export class BetterSQL extends EventEmitter implements BaseDB {
     public readonly deserializer: (input: string) => any;
     protected readonly cache?: BaseCache;
     protected readonly sqlite: Sqlite.Database;
+    private BetterSQLDriver: ReturnType<typeof getDriver>;
 
     public constructor(name: string, config: Config) {
         super();
@@ -46,7 +49,8 @@ export class BetterSQL extends EventEmitter implements BaseDB {
         fs.ensureFileSync(storagePath);
         
         this.name = name;
-        this.sqlite = config.dialect instanceof Sqlite ? config.dialect : new Sqlite(storagePath);
+        this.BetterSQLDriver = getDriver();
+        this.sqlite = config.dialect instanceof this.BetterSQLDriver ? config.dialect : new this.BetterSQLDriver(storagePath);
 
         if (config.cache !== false) {
             if (isBaseCacheConstructor(config.cache)) this.cache = new config.cache();
